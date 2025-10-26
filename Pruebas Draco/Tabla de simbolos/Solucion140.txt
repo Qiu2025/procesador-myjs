@@ -1,0 +1,13 @@
+TABLA PRINCIPAL #1:
+* LEXEMA: 'bisiesto'
+* LEXEMA: 'dd'
+* LEXEMA: 'a'
+* LEXEMA: 'esFechaCorrecta'
+* LEXEMA: 'd'
+* LEXEMA: 'booleano'
+* LEXEMA: 'dias'
+* LEXEMA: 'kkk'
+* LEXEMA: 'bis'
+* LEXEMA: 'm'
+* LEXEMA: 'demo'
+* LEXEMA: 'IF'

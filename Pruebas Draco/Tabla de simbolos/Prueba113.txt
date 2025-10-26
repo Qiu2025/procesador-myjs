@@ -1,0 +1,10 @@
+let int x  = '1';let num int ;
+return8
+;write{num};get(num,
+n1)function string hola (void hola){}
+let aaaaa99999 float
+if (k_bb_) then 
+aaaaa99999 = aaaaa999999%9876;
+let uu float;
+call hola();
+

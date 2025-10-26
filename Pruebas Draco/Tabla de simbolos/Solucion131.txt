@@ -1,0 +1,11 @@
+TABLA PRINCIPAL #1:
+* LEXEMA: 'cc'
+* LEXEMA: 'num1_'
+* LEXEMA: 'a'
+* LEXEMA: 'number'
+* LEXEMA: 'b'
+* LEXEMA: 'number_'
+* LEXEMA: 'num2_'
+* LEXEMA: 'num1'
+* LEXEMA: 'real'
+* LEXEMA: 'operacion'

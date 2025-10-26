@@ -1,0 +1,34 @@
+/* Ejemplo de Prueba... */
+
+let int int1;
+let string cadena;read cadena;
+let boolean logico1;let boolean logico2 ;
+let float llff11;
+int1 = 000000378;
+
+int2 = int1;
+cadena = 'string';
+
+function  string ff(string ss)
+{
+	logico2 = ! logico1;
+	if (logico2) cadena = ff (ss);
+	letglobal = 78;
+	return cadena;
+}
+		
+function boolean l(float _1){return _l<llff11;}
+function string funciOn (string logico2)
+{	let string var 	;
+
+  for (logico2='';int1 < int2;int2 = int1){
+	logico1 = int1 < int2;write((0));
+  }
+  
+  return logico2;
+}
+logico1=(l(llff11));
+cadena = (ff(funciOn(cadena)));
+if (logico1)
+write cadena;
+

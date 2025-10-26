@@ -1,0 +1,6 @@
+TABLA PRINCIPAL #1:
+* LEXEMA: 'texto'
+* LEXEMA: 'output'
+* LEXEMA: 'm_s_g'
+* LEXEMA: 'pideTexto'
+* LEXEMA: 'num_real'

@@ -1,0 +1,13 @@
+TABLA PRINCIPAL #1:
+* LEXEMA: 'uu'
+* LEXEMA: 'call'
+* LEXEMA: 'return8'
+* LEXEMA: 'n1'
+* LEXEMA: 'num'
+* LEXEMA: 'get'
+* LEXEMA: 'x'
+* LEXEMA: 'k_bb_'
+* LEXEMA: 'then'
+* LEXEMA: 'aaaaa999999'
+* LEXEMA: 'hola'
+* LEXEMA: 'aaaaa99999'

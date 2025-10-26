@@ -1,0 +1,14 @@
+let int x ;
+let boolean b;
+let int z;
+read z;
+write z;
+x+=z;
+write z%x;
+b=!b;if (b) z =
+  x % 7
+    % z
+    % (1
+    % 2
+    % y)
+    % 3;
