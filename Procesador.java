@@ -265,23 +265,6 @@ public class Procesador {
 		reiniciarVariables();
 		while (estado != ESTADO_FINAL) {
 
-			// Que reciba EOF sin ser estado final puede ser debido a
-			// cadena sin cerrar o comentario sin cerrar.
-			if (car == -1) {
-				switch (estado) {
-					case 6:
-						tratarError(MISSING_ASTERISCO);
-						break; // cadena sin cerrar
-					case 7, 8:
-						tratarError(MISSING_FINAL_COMENTARIO);
-						break; // comentario sin cerrar
-					default:
-						break;
-				}
-
-				break; // salir del while
-			}
-
 			int tipoCar = tipoCaracter((char) car);
 			Entry<Integer, List<Integer>> transicion = MT_AFD[estado][tipoCar];
 			Integer nuevoEstado = transicion.getKey();
@@ -364,8 +347,8 @@ public class Procesador {
 		MT_AFD[0][DEL] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
 		MT_AFD[0][BARRA] = new AbstractMap.SimpleEntry<>(6, Arrays.asList(L));
 		MT_AFD[0][SALTO] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
-		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(0, new ArrayList<>()); // No hacer nada al encontrar EOF
 
+		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, new ArrayList<>());	// Si hay EOF, salir
 		MT_AFD[0][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G2));
 		MT_AFD[0][COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G3));
 		MT_AFD[0][PUNTO_COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G4));
@@ -409,22 +392,21 @@ public class Procesador {
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[5][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_IGUAL));
 		}
-
 		MT_AFD[5][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G1));
 
 		// Estado 6: Posible comentario o división
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[6][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_ASTERISCO));
 		}
-
 		MT_AFD[6][ASTERISCO] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(L)); // Comentario de línea
+		MT_AFD[6][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_ASTERISCO));
 
 		// Estado 7: Comentario de línea
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[7][i] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(L));
 		}
 		MT_AFD[7][ASTERISCO] = new AbstractMap.SimpleEntry<>(8, Arrays.asList(L));
-		MT_AFD[7][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_ASTERISCO));
+		MT_AFD[7][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_FINAL_COMENTARIO));
 
 		// Estado 8: Fin de comentario de línea
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
