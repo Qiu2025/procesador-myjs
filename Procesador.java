@@ -506,7 +506,7 @@ public class Procesador {
 			case CARACTER_NO_RECONOCIDO:
 				System.out.println("Error léxico en línea " + lineaMostrar +
 						", leyendo carácter '" + charLeido +
-						"', motivo: carácter no reconocido.");
+						"', motivo: carácter con el que no se puede transitar desde el estado 0 o no reconocido.");
 				L();
 				break;
 
