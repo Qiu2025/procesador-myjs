@@ -552,7 +552,7 @@ public class Procesador {
 
 			case CADENA_OVERFLOW:
 				System.out.println("Error léxico en línea " + lineaMostrar +
-						", cadena demasiado larga: " + lexema);
+						", cadena demasiado larga: '" + lexema + "'");
 				L();
 				break;
 
