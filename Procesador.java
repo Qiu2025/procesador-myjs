@@ -78,6 +78,7 @@ public class Procesador {
 	static BufferedReader br;
 	static BufferedWriter bwTokens;
 	static BufferedWriter bwTablaSimbolos;
+	static BufferedWriter bwParse;
 
 	// Variables del analizador lexico
 	static int estado; // estado actual
@@ -104,11 +105,19 @@ public class Procesador {
 		try {
 			br = new BufferedReader(new FileReader("entrada.txt"));
 			bwTokens = new BufferedWriter(new FileWriter("salida.txt"));
+			bwParse = new BufferedWriter(new FileWriter("parse.txt"));
+			bwParse.write("descendente");
 
 			car = br.read(); // Primer caracter, para el estado 0
 			while (car != -1) {
 				token = analizadorLexico();
 				bwTokens.write(token + "\n");
+			}
+
+			// Se pone manualmente este token dado que en su momento no se ha considerado como
+			// token, sirve para comprobar en el metodo del ASint si se ha llegado el final.
+			if (car == -1) {
+				token = "$";
 			}
 
 			bwTablaSimbolos = new BufferedWriter(new FileWriter("tablasSimbolos.txt"));
@@ -260,7 +269,7 @@ public class Procesador {
 	/**********************************************************************************************************************************/
 	// === ANALIZADOR LÉXICO ===
 
-	private static String analizadorLexico() throws IOException {
+	private static String analizadorLexico() {
 		reiniciarVariables();
 		while (estado != ESTADO_FINAL) {
 
@@ -308,6 +317,52 @@ public class Procesador {
 	}
 
 	// === ANALIZADOR LÉXICO ===
+	/**********************************************************************************************************************************/
+
+	/**********************************************************************************************************************************/
+	// === ANALIZADOR SINTÁCTICO ===
+
+	private static void analizadorSintactico() {
+		token = analizadorLexico();
+		P();
+		if (token != "$") {
+			tratarError();
+		}
+	}
+
+	private static void equipara(String tokenEsperado) {
+		if (token.equals(tokenEsperado)) {
+			token = analizadorLexico();
+		} else {
+			tratarError();
+		}
+	}
+
+	private static void E() {
+		bwParse.write(" 1");
+		R();
+		E_p();
+	}
+
+	private static void E_p() {
+		if (token.equals("<menorQue,>")) {
+			equipara("<menorQue,>");
+			bwParse.write(" 2");
+		} else if (token == "")	// Follow(E_p)
+			equipara("");	
+			bwParse.write(" 3");
+		}
+		U();
+		R_p();
+	}
+
+	private static void R() {
+		bwParse.write(" 4");
+		U();
+		R_p();
+	}
+
+	// === ANALIZADOR SINTÁCTICO ===
 	/**********************************************************************************************************************************/
 
 	/**********************************************************************************************************************************/
@@ -505,7 +560,7 @@ public class Procesador {
 			case CARACTER_NO_RECONOCIDO:
 				System.out.println("Error léxico en línea " + lineaMostrar +
 						", leyendo carácter '" + charLeido +
-						"', motivo: carácter con el que no se puede transitar desde el estado 0 o no reconocido.");
+						"', motivo: carácter no reconocido.");
 				L();
 				break;
 
