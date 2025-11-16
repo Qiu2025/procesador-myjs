@@ -348,7 +348,7 @@ public class Procesador {
 		if (token.equals("<menorQue,>")) {
 			equipara("<menorQue,>");
 			bwParse.write(" 2");
-		} else if (token == "")	// Follow(E_p)
+		} else if (token == )	// Follow(E_p)
 			equipara("");	
 			bwParse.write(" 3");
 		}
