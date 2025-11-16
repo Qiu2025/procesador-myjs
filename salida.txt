@@ -1,0 +1,9 @@
+<let,>
+<tipoInt,>
+<ID,1>
+<puntoComa,>
+<ID,1>
+<igual,>
+<numReal,111111.87974575002>
+<puntoComa,>
+

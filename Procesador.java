@@ -1,5 +1,4 @@
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -232,7 +231,7 @@ public class Procesador {
 			tratarError(REAL_OVERFLOW);
 			reiniciarVariables();
 		} else {
-			token = "<numReal," + new BigDecimal(String.valueOf(num)).toPlainString() + ">";
+			token = "<numReal," + num + ">";
 		}
 	}
 
@@ -546,8 +545,7 @@ public class Procesador {
 
 			case REAL_OVERFLOW:
 				System.out.println("Error léxico en línea " + lineaMostrar +
-						", número real demasiado grande: '" + new BigDecimal(String.valueOf(num)).toPlainString()
-						+ "'");
+						", número real demasiado grande: '" + num + "'");
 				break;
 
 			case CADENA_OVERFLOW:

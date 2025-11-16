@@ -1,0 +1,90 @@
+//// Gramatica del fichero de gramatica
+
+//// Axioma
+Axioma = P
+
+//// Conjunto de simbolos terminales
+Terminales = { < lambda % ! id ( ) entero cadena real write ; read return = += , if let for { } int float boolean string function void }
+
+//// Conjunto de simbolo no terminales
+NoTerminales = { E R E_p U R_p V V_p L S S_p X Q B T W W_p F H A C K P }
+
+//// Lista de producciones
+Producciones = {
+    E -> R E_p          //// Expresiones de aqui abajo
+
+    E_p -> < R E_p
+    E_p -> lambda
+
+    R -> U R_p
+
+    R_p -> % U R_p
+    R_p -> lambda
+
+    U -> ! V
+    U -> V
+
+    V -> id V_p
+    V -> ( E )
+    V -> entero
+    V -> cadena
+    V -> real
+
+    V_p -> lambda
+    V_p -> ( L )
+
+    S -> id S_p         //// Sentencias simples de aqui abajo
+    S -> write E ;
+    S -> read id ;
+    S -> return X ;
+    
+    S_p -> = E ;
+    S_p -> += E ;
+    S_p -> ( L ) ;
+
+    L -> E Q
+    L -> lambda
+
+    Q -> , E Q
+    Q -> lambda
+
+    X -> E
+    X -> lambda
+
+    B -> if ( E ) S     //// Sentencias compuestas de aqui abajo
+    B -> let T id ;
+    B -> S
+    B -> for ( X ; E ; X ) { B }
+
+    X -> W
+    X -> lambda
+
+    T -> int
+    T -> float
+    T -> boolean
+    T -> string
+
+    W -> id W_p
+
+    W_p -> = E
+    W_p -> += E
+
+    F -> function H id ( A ) { C }      //// Declaraciones de funciones de aqui abajo
+
+    H -> T
+    H -> void
+
+    A -> T id K
+    A -> void
+
+    K -> T id K
+    K -> lambda
+
+    C -> B C
+    C -> lambda
+
+    P -> B P        //// Axioma de aqui abajo
+    P -> F P
+    P -> lambda
+}
+

@@ -1,0 +1,3 @@
+
+let int resultado;
+resultado = 111111.87974575;
