@@ -50,14 +50,14 @@ public class Procesador {
 	final static int G12 = 12;
 	final static int G13 = 13;
 	final static int G14 = 14;
-	final static int C = 15;
-	final static int C_P = 16; // C'
-	final static int C_PP = 17; // C''
-	final static int L = 18;
-	final static int G = 19;
-	final static int S = 20;
-	final static int S_P = 21; // S'
-	final static int S_PP = 22; // S''
+	final static int Acc_C = 15;
+	final static int Acc_C_P = 16; // C'
+	final static int Acc_C_PP = 17; // C''
+	final static int Acc_L = 18;
+	final static int Acc_G = 19;
+	final static int Acc_S = 20;
+	final static int Acc_S_P = 21; // S'
+	final static int Acc_S_PP = 22; // S''
 	final static int ERROR = 23;
 
 	// Codigos de error
@@ -108,23 +108,16 @@ public class Procesador {
 			bwParse = new BufferedWriter(new FileWriter("parse.txt"));
 			bwParse.write("descendente");
 
-			car = br.read(); // Primer caracter, para el estado 0
-			while (car != -1) {
-				token = analizadorLexico();
-				bwTokens.write(token + "\n");
-			}
-
-			// Se pone manualmente este token dado que en su momento no se ha considerado como
-			// token, sirve para comprobar en el metodo del ASint si se ha llegado el final.
-			if (car == -1) {
-				token = "$";
-			}
+			car = br.read();
+			analizadorSintactico();
 
 			bwTablaSimbolos = new BufferedWriter(new FileWriter("tablasSimbolos.txt"));
 			imprimirTablaGlobal();
 
+			br.close();
 			bwTokens.close();
 			bwTablaSimbolos.close();
+			bwParse.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -136,48 +129,50 @@ public class Procesador {
 	/**********************************************************************************************************************************/
 	// === ACCIONES SEMÁNTICAS ===
 
-	static void C() {
+	static void Acc_C() {
 		lexema = "";
 		lexema += (char) car;
 		longCadena = 1;
 	}
 
-	static void C_P() {
+	static void Acc_C_P() {
 		lexema += (char) car;
 		longCadena++;
 	}
 
-	static void C_PP() {
+	static void Acc_C_PP() {
 		lexema = "";
 		longCadena = 0;
 	}
 
-	static void S() {
+	static void Acc_S() {
 		num = car - '0';
 		exponente = 1;
 	}
 
-	static void S_P() {
+	static void Acc_S_P() {
 		num = num * 10 + (car - '0');
 	}
 
-	static void S_PP() {
+	static void Acc_S_PP() {
 		int valor = car - '0';
 		num += valor / (Math.pow(10, exponente));
 		exponente++;
 	}
 
-	static void L() {
+	static void Acc_L() {
 		try {
 			car = br.read();
-			if (car == '\n') linea++;
-			if (estado == 6) startLine = linea;
+			if (car == '\n')
+				linea++;
+			if (estado == 6)
+				startLine = linea;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	static void G() {
+	static void Acc_G() {
 		String value = tablaPR.get(lexema);
 		if (value != null) {
 			token = "<" + value + ",>";
@@ -271,6 +266,12 @@ public class Procesador {
 
 	private static String analizadorLexico() {
 		reiniciarVariables();
+
+		if (car == -1) {
+			token = "$";
+			return token;
+    	}
+
 		while (estado != ESTADO_FINAL) {
 
 			int tipoCar = tipoCaracter((char) car);
@@ -299,14 +300,14 @@ public class Procesador {
 						case G12 -> G12();
 						case G13 -> G13();
 						case G14 -> G14();
-						case C -> C();
-						case C_P -> C_P();
-						case C_PP -> C_PP();
-						case L -> L();
-						case G -> G();
-						case S -> S();
-						case S_P -> S_P();
-						case S_PP -> S_PP();
+						case Acc_C -> Acc_C();
+						case Acc_C_P -> Acc_C_P();
+						case Acc_C_PP -> Acc_C_PP();
+						case Acc_L -> Acc_L();
+						case Acc_G -> Acc_G();
+						case Acc_S -> Acc_S();
+						case Acc_S_P -> Acc_S_P();
+						case Acc_S_PP -> Acc_S_PP();
 						default -> throw new IllegalArgumentException("Acción desconocida: " + accion);
 					}
 				}
@@ -322,44 +323,381 @@ public class Procesador {
 	/**********************************************************************************************************************************/
 	// === ANALIZADOR SINTÁCTICO ===
 
-	private static void analizadorSintactico() {
-		token = analizadorLexico();
-		P();
-		if (token != "$") {
-			tratarError();
+	private static boolean compararTokens(String token, String[] tokensComparar) {
+		boolean res = false;
+		for (String s : tokensComparar) {
+			if (res)
+				break;
+			res = res || token.equals(s);
+		}
+		return res;
+	}
+
+	private static void formatearToken() {
+		switch (token) {
+			case "<tipoBoolean,>" -> token = "boolean";
+			case "<tipoFloat,>" -> token = "float";
+			case "<for,>" -> token = "for";
+			case "<function,>" -> token = "function";
+			case "<if,>" -> token = "if";
+			case "<tipoInt,>" -> token = "int";
+			case "<let,>" -> token = "let";
+			case "<read,>" -> token = "read";
+			case "<return,>" -> token = "return";
+			case "<tipoString,>" -> token = "string";
+			case "<void,>" -> token = "void";
+			case "<write,>" -> token = "write";
+			case "<masIgual,>" -> token = "+=";
+			case "<igual,>" -> token = "=";
+			case "<coma,>" -> token = ",";
+			case "<puntoComa,>" -> token = ";";
+			case "<abrirParentesis,>" -> token = "(";
+			case "<cerrarParentesis,>" -> token = ")";
+			case "<abrirLlave,>" -> token = "{";
+			case "<cerrarLlave,>" -> token = "}";
+			case "<modulo,>" -> token = "%";
+			case "<negacion,>" -> token = "!";
+			case "<menorQue,>" -> token = "<";
+			default -> {
+				if (token.contains("numReal"))
+					token = "numReal";
+				else if (token.contains("numEntero"))
+					token = "numEntero";
+				else if (token.contains("cadena"))
+					token = "cadena";
+				else if (token.contains("ID"))
+					token = "ID";
+			}
 		}
 	}
 
-	private static void equipara(String tokenEsperado) {
+	private static void analizadorSintactico() throws IOException {
+		token = analizadorLexico();
+		bwTokens.write(token + "\n");
+		formatearToken();
+		P();
+		if (!token.equals("$") && !token.equals("")) {
+			System.out.println("[Error sintáctico] línea " + linea);
+			System.out.println("Fin de archivo no encontrado");
+			System.out.println("Se esperaba: $");
+			System.out.println("Se encontró: " + token);
+		}
+	}
+
+	private static void equipara(String tokenEsperado) throws IOException {
 		if (token.equals(tokenEsperado)) {
 			token = analizadorLexico();
+			if (!token.equals("$")) {   // Solo escribimos tokens reales
+    			bwTokens.write(token + "\n");
+			}
+			formatearToken();
 		} else {
-			tratarError();
+			System.out.println("[Error sintáctico] línea " + linea);
+			System.out.println("Se esperaba: " + tokenEsperado);
+			System.err.println("Se encontró: " + token);
+			
 		}
 	}
 
-	private static void E() {
+	private static void E() throws IOException {
 		bwParse.write(" 1");
 		R();
 		E_p();
 	}
 
-	private static void E_p() {
-		if (token.equals("<menorQue,>")) {
-			equipara("<menorQue,>");
+	private static void E_p() throws IOException {
+		if (token.equals("<")) {
 			bwParse.write(" 2");
-		} else if (token == )	// Follow(E_p)
-			equipara("");	
+			equipara("<");
+			R();
+			E_p();
+		} else if (compararTokens(token, new String[] {")", ",", ";"})) { // Follow(E_p)
 			bwParse.write(" 3");
 		}
+	}
+
+	private static void R() throws IOException {
+		bwParse.write(" 4");
 		U();
 		R_p();
 	}
 
-	private static void R() {
-		bwParse.write(" 4");
-		U();
-		R_p();
+	private static void R_p() throws IOException {
+		if (token.equals("%")) {
+			bwParse.write(" 5");
+			equipara("%");
+			U();
+			R_p();
+		} else if (compararTokens(token, new String[] { ")", ",", ";", "<" })) { // Follow(R_p)
+			bwParse.write(" 6");
+		}
+	}
+
+	private static void U() throws IOException {
+		if (token.equals("!")) {
+			bwParse.write(" 7");
+			equipara("!");
+			V();
+		} else if (compararTokens(token, new String[]{"(", "cadena", "numEntero", "ID", "numReal"})) {
+			bwParse.write(" 8");
+			V();
+		}
+	}
+
+	private static void V() throws IOException {
+		if (token.equals("ID")) {
+			bwParse.write(" 9");
+			equipara("ID");
+			V_p();
+		} else if (token.equals("(")) {
+			bwParse.write(" 10");
+			equipara("(");
+			E();
+			equipara(")");
+		} else if (token.equals("numEntero")) {
+			bwParse.write(" 11");
+			equipara("numEntero");
+		} else if (token.equals("cadena")) {
+			bwParse.write(" 12");
+			equipara("cadena");
+		} else if (token.equals("numReal")) {
+			bwParse.write(" 13");
+			equipara("numReal");
+		}
+	}
+
+	private static void V_p() throws IOException {
+		if (token.equals("(")) {
+			bwParse.write(" 15");
+			equipara("(");
+			L();
+			equipara(")");
+		} else if (compararTokens(token, new String[] { "%", ")", ",", ";", "<" })) {
+			bwParse.write(" 14");
+		}
+	}
+
+	private static void S() throws IOException {
+		if (token.equals("ID")) {
+			bwParse.write(" 16");
+			equipara("ID");
+			S_p();
+		} else if (token.equals("write")) {
+			bwParse.write(" 17");
+			equipara("write");
+			E();
+			equipara(";");
+		} else if (token.equals("read")) {
+			bwParse.write(" 18");
+			equipara("read");
+			equipara("ID");
+			equipara(";");
+		} else if (token.equals("return")) {
+			bwParse.write(" 19");
+			equipara("return");
+			X();
+			equipara(";");
+		}
+	}
+
+	private static void S_p() throws IOException {
+		if (token.equals("=")) {
+			bwParse.write(" 20");
+			equipara("=");
+			E();
+			equipara(";");
+		} else if (token.equals("+=")) {
+			bwParse.write(" 21");
+			equipara("+=");
+			E();
+			equipara(";");
+		} else if (token.equals("(")) {
+			bwParse.write(" 22");
+			equipara("(");
+			L();
+			equipara(")");
+			equipara(";");
+		}
+	}
+
+	private static void L() throws IOException { // First(L) = First(EQ) = First(E)
+		if (compararTokens(token, new String[] { "!", "(", "cadena", "numEntero", "ID", "numReal" })) {
+			bwParse.write(" 23");
+			E();
+			Q();
+		} else if (token.equals(")")) {
+			bwParse.write(" 24");
+		}
+	}
+
+	private static void Q() throws IOException {
+		if (token.equals(",")) {
+			bwParse.write(" 25");
+			equipara(",");
+			E();
+			Q();
+		} else if (token.equals(")")) { // Follow(Q)
+			bwParse.write(" 26");
+		}
+	}
+
+	private static void X() throws IOException {
+		if (compararTokens(token, new String[] { "!", "(", "cadena", "numEntero", "ID", "numReal" })) {
+			bwParse.write(" 27");
+			E();
+		} else if (compararTokens(token, new String[] { ")", ";" })) { // Follow(X)
+			bwParse.write(" 28");
+		}
+	}
+
+	private static void B() throws IOException {
+		if (token.equals("if")) {
+			bwParse.write(" 29");
+			equipara("if");
+			equipara("(");
+			E();
+			equipara(")");
+			S();
+		} else if (token.equals("let")) {
+			bwParse.write(" 30");
+			equipara("let");
+			T();
+			equipara("ID");
+			equipara(";");
+		} else if (compararTokens(token, new String[] { "ID", "read", "return", "write" })) {
+			bwParse.write(" 31");
+			S();
+		} else if (token.equals("for")) {
+			bwParse.write(" 32");
+			equipara("for");
+			equipara("(");
+			Y();
+			equipara(";");
+			E();
+			equipara(";");
+			Y();
+			equipara(")");
+			equipara("{");
+			B();
+			equipara("}");
+		}
+	}
+
+	private static void Y() throws IOException {
+		if (token.equals("ID")) {
+			bwParse.write(" 33");
+			W();
+		} else { // Y no tiene follow
+			bwParse.write(" 34");
+		}
+	}
+
+	private static void T() throws IOException {
+		if (token.equals("int")) {
+			bwParse.write(" 35");
+			equipara("int");
+		} else if (token.equals("float")) {
+			bwParse.write(" 36");
+			equipara("float");
+		} else if (token.equals("boolean")) {
+			bwParse.write(" 37");
+			equipara("boolean");
+		} else if (token.equals("string")) {
+			bwParse.write(" 38");
+			equipara("string");
+		}
+	}
+
+	private static void W() throws IOException {
+		if (token.equals("ID")) {
+			bwParse.write(" 39");
+			equipara("ID");
+			W_p();
+		}
+	}
+
+	private static void W_p() throws IOException {
+		if (token.equals("=")) {
+			bwParse.write(" 40");
+			equipara("=");
+			E();
+		} else if (token.equals("+=")) {
+			bwParse.write(" 41");
+			equipara("+=");
+			E();
+		}
+	}
+
+	private static void F() throws IOException {
+		if (token.equals("function")) {
+			bwParse.write(" 42");
+			equipara("function");
+			H();
+			equipara("ID");
+			equipara("(");
+			A();
+			equipara(")");
+			equipara("{");
+			C();
+			equipara("}");
+		}
+	}
+
+	private static void H() throws IOException {
+		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
+			bwParse.write(" 43");
+			T();
+		} else if (token.equals("void")) {
+			bwParse.write(" 44");
+			equipara("void");
+		}
+	}
+
+	private static void A() throws IOException {
+		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
+			bwParse.write(" 45");
+			T();
+			equipara("ID");
+			K();
+		} else if (token.equals("void")) {
+			bwParse.write(" 46");
+			equipara("void");
+		}
+	}
+
+	private static void K() throws IOException {
+		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
+			bwParse.write(" 47");
+			T();
+			equipara("ID");
+			K();
+		} else if (token.equals(")")) { // Follow(K)
+			bwParse.write(" 48");
+		}
+	}
+
+	private static void C() throws IOException {
+		if (compararTokens(token, new String[] { "for", "ID", "if", "let", "read", "return", "write" })) {
+			bwParse.write(" 49");
+			B();
+			C();
+		} else if (token.equals("}")) { // Follow(C)
+			bwParse.write(" 50");
+		}
+	}
+
+	private static void P() throws IOException {
+		if (compararTokens(token, new String[] {"for", "ID", "if", "let", "read", "return", "write" })) {
+			bwParse.write(" 51");
+			B();
+			P();
+		} else if (token.equals("function")) {
+			bwParse.write(" 52");
+			F();
+			P();
+		} else if (token.equals("$")) { // Follow(P)
+			bwParse.write(" 53");
+		}
 	}
 
 	// === ANALIZADOR SINTÁCTICO ===
@@ -390,91 +728,91 @@ public class Procesador {
 			MT_AFD[0][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(CARACTER_NO_RECONOCIDO));
 		}
 		// Identificadores y palabras reservadas
-		MT_AFD[0][LETRA] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(C, L));
+		MT_AFD[0][LETRA] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(Acc_C, Acc_L));
 		// Números enteros y reales
-		MT_AFD[0][DIGITO] = new AbstractMap.SimpleEntry<>(3, Arrays.asList(S, L));
+		MT_AFD[0][DIGITO] = new AbstractMap.SimpleEntry<>(3, Arrays.asList(Acc_S, Acc_L));
 		// Cadenas (comillas simples)
-		MT_AFD[0][COMILLA] = new AbstractMap.SimpleEntry<>(2, Arrays.asList(C_PP, L));
+		MT_AFD[0][COMILLA] = new AbstractMap.SimpleEntry<>(2, Arrays.asList(Acc_C_PP, Acc_L));
 		// Operador de suma y asignación
-		MT_AFD[0][MAS] = new AbstractMap.SimpleEntry<>(5, Arrays.asList(L));
+		MT_AFD[0][MAS] = new AbstractMap.SimpleEntry<>(5, Arrays.asList(Acc_L));
 		// Delimitadores (espacio, tabulador, saltos de línea)
-		MT_AFD[0][DEL] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
-		MT_AFD[0][BARRA] = new AbstractMap.SimpleEntry<>(6, Arrays.asList(L));
-		MT_AFD[0][SALTO] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
+		MT_AFD[0][DEL] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(Acc_L));
+		MT_AFD[0][BARRA] = new AbstractMap.SimpleEntry<>(6, Arrays.asList(Acc_L));
+		MT_AFD[0][SALTO] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(Acc_L));
 
-		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, new ArrayList<>());	// Si hay EOF, salir
-		MT_AFD[0][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G2));
-		MT_AFD[0][COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G3));
-		MT_AFD[0][PUNTO_COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G4));
-		MT_AFD[0][PAR_IZQ] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G5));
-		MT_AFD[0][PAR_DCH] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G6));
-		MT_AFD[0][LLAVE_IZQ] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G7));
-		MT_AFD[0][LLAVE_DCH] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G8));
-		MT_AFD[0][MODULO] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G9));
-		MT_AFD[0][NEGACION] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G10));
-		MT_AFD[0][MENOR] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G11));
+		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, new ArrayList<>()); // Si hay EOF, salir
+		MT_AFD[0][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G2));
+		MT_AFD[0][COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G3));
+		MT_AFD[0][PUNTO_COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G4));
+		MT_AFD[0][PAR_IZQ] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G5));
+		MT_AFD[0][PAR_DCH] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G6));
+		MT_AFD[0][LLAVE_IZQ] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G7));
+		MT_AFD[0][LLAVE_DCH] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G8));
+		MT_AFD[0][MODULO] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G9));
+		MT_AFD[0][NEGACION] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G10));
+		MT_AFD[0][MENOR] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G11));
 
 		// Estado 1: Identificadores y palabras reservadas
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
-			MT_AFD[1][i] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(G));
+			MT_AFD[1][i] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_G));
 		}
-		MT_AFD[1][LETRA] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(C_P, L));
-		MT_AFD[1][DIGITO] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(C_P, L));
+		MT_AFD[1][LETRA] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(Acc_C_P, Acc_L));
+		MT_AFD[1][DIGITO] = new AbstractMap.SimpleEntry<>(1, Arrays.asList(Acc_C_P, Acc_L));
 
 		// Estado 2: Cadenas
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
-			MT_AFD[2][i] = new AbstractMap.SimpleEntry<>(2, Arrays.asList(C_P, L));
+			MT_AFD[2][i] = new AbstractMap.SimpleEntry<>(2, Arrays.asList(Acc_C_P, Acc_L));
 		}
-		MT_AFD[2][COMILLA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G14));
-		MT_AFD[2][SALTO] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_COMILLA_CIERRE, L));
+		MT_AFD[2][COMILLA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G14));
+		MT_AFD[2][SALTO] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_COMILLA_CIERRE, Acc_L));
 		MT_AFD[2][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_COMILLA_CIERRE));
 
 		// Estado 3: Números enteros y reales
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[3][i] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(G13));
 		}
-		MT_AFD[3][DIGITO] = new AbstractMap.SimpleEntry<>(3, Arrays.asList(S_P, L));
-		MT_AFD[3][PUNTO] = new AbstractMap.SimpleEntry<>(9, Arrays.asList(L));
+		MT_AFD[3][DIGITO] = new AbstractMap.SimpleEntry<>(3, Arrays.asList(Acc_S_P, Acc_L));
+		MT_AFD[3][PUNTO] = new AbstractMap.SimpleEntry<>(9, Arrays.asList(Acc_L));
 
 		// Estado 4: Parte decimal de números reales
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[4][i] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(G12));
 		}
-		MT_AFD[4][DIGITO] = new AbstractMap.SimpleEntry<>(4, Arrays.asList(S_PP, L));
+		MT_AFD[4][DIGITO] = new AbstractMap.SimpleEntry<>(4, Arrays.asList(Acc_S_PP, Acc_L));
 
 		// Estado 5: Operador de suma y asignación
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[5][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_IGUAL));
 		}
-		MT_AFD[5][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G1));
+		MT_AFD[5][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(Acc_L, G1));
 
 		// Estado 6: Posible comentario o división
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[6][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_ASTERISCO));
 		}
-		MT_AFD[6][ASTERISCO] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(L)); // Comentario de línea
+		MT_AFD[6][ASTERISCO] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(Acc_L)); // Comentario de línea
 		MT_AFD[6][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_ASTERISCO));
 
 		// Estado 7: Comentario de línea
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
-			MT_AFD[7][i] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(L));
+			MT_AFD[7][i] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(Acc_L));
 		}
-		MT_AFD[7][ASTERISCO] = new AbstractMap.SimpleEntry<>(8, Arrays.asList(L));
+		MT_AFD[7][ASTERISCO] = new AbstractMap.SimpleEntry<>(8, Arrays.asList(Acc_L));
 		MT_AFD[7][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_FINAL_COMENTARIO));
 
 		// Estado 8: Fin de comentario de línea
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
-			MT_AFD[8][i] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(L));
+			MT_AFD[8][i] = new AbstractMap.SimpleEntry<>(7, Arrays.asList(Acc_L));
 		}
-		MT_AFD[8][BARRA] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
-		MT_AFD[8][ASTERISCO] = new AbstractMap.SimpleEntry<>(8, Arrays.asList(L));
+		MT_AFD[8][BARRA] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(Acc_L));
+		MT_AFD[8][ASTERISCO] = new AbstractMap.SimpleEntry<>(8, Arrays.asList(Acc_L));
 		MT_AFD[8][EOF] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_FINAL_COMENTARIO));
 
 		// Estado 9: Punto en número real
 		for (int i = 0; i < NUMERO_CARACTERES; i++) {
 			MT_AFD[9][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_DIGITO));
 		}
-		MT_AFD[9][DIGITO] = new AbstractMap.SimpleEntry<>(4, Arrays.asList(S_PP, L));
+		MT_AFD[9][DIGITO] = new AbstractMap.SimpleEntry<>(4, Arrays.asList(Acc_S_PP, Acc_L));
 	}
 
 	private static void reiniciarVariables() {
@@ -540,7 +878,7 @@ public class Procesador {
 
 	private static void tratarError(int codError) {
 
-		String charLeido;		  // para poder imprimir caracteres especiales como \n, \t
+		String charLeido; // para poder imprimir caracteres especiales como \n, \t
 		int lineaMostrar = linea; // por defecto, imprimimos el número de línea actual
 
 		if (car == '\n') {
@@ -561,13 +899,13 @@ public class Procesador {
 				System.out.println("Error léxico en línea " + lineaMostrar +
 						", leyendo carácter '" + charLeido +
 						"', motivo: carácter no reconocido.");
-				L();
+				Acc_L();
 				break;
 
 			case MISSING_COMILLA_CIERRE:
 				System.out.println("Error léxico en línea " + lineaMostrar +
 						", leyendo carácter '\\n', motivo: se espera una comilla de cierre.");
-				L();
+				Acc_L();
 				break;
 
 			case MISSING_FINAL_COMENTARIO:
@@ -606,7 +944,7 @@ public class Procesador {
 			case CADENA_OVERFLOW:
 				System.out.println("Error léxico en línea " + lineaMostrar +
 						", cadena demasiado larga: '" + lexema + "'");
-				L();
+				Acc_L();
 				break;
 
 			default:

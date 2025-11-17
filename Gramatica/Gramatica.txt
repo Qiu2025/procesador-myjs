@@ -4,7 +4,7 @@
 Axioma = P
 
 //// Conjunto de simbolos terminales
-Terminales = { < lambda % ! id ( ) entero cadena real write ; read return = += , if let for { } int float boolean string function void }
+Terminales = { < % ! id ( ) entero cadena real write ; read return = += , if let for { } int float boolean string function void }
 
 //// Conjunto de simbolo no terminales
 NoTerminales = { E R E_p U R_p V V_p L S S_p X Q B Y T W W_p F H A C K P }
@@ -54,7 +54,7 @@ Producciones = {
     B -> if ( E ) S     //// Sentencias compuestas de aqui abajo
     B -> let T id ;
     B -> S
-    B -> for ( X ; E ; X ) { B }
+    B -> for ( Y ; E ; Y ) { B }
 
     Y -> W
     Y -> lambda
