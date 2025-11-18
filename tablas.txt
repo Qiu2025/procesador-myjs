@@ -1,11 +1,1 @@
 TABLA PRINCIPAL #1:
-* LEXEMA: 'ff'
-* LEXEMA: 'ss'
-* LEXEMA: 'n1'
-* LEXEMA: 'n2'
-* LEXEMA: 'l1'
-* LEXEMA: 'l2'
-* LEXEMA: 'cad'
-* LEXEMA: 'f1'
-* LEXEMA: 'f2'
-* LEXEMA: 'letglobal'
