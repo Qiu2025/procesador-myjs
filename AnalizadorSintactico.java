@@ -37,9 +37,7 @@ public class AnalizadorSintactico {
 			token = aLex.nextToken();
 			formatearToken();
 		} else {
-			System.out.println("[Error sintáctico] línea " + aLex.getLinea());
-			System.out.println("Se esperaba: " + tokenEsperado);
-			System.err.println("Se encontró: " + token);
+			lanzarError(tokenEsperado);
 		}
 	}
 
@@ -77,6 +75,7 @@ public class AnalizadorSintactico {
 			case "<modulo,>" -> token = "%";
 			case "<negacion,>" -> token = "!";
 			case "<menorQue,>" -> token = "<";
+            case "<eof,>" -> token = "$";
 			default -> {
 				if (token.contains("numReal"))
 					token = "numReal";
@@ -89,6 +88,16 @@ public class AnalizadorSintactico {
 			}
 		}
 	}
+
+    private void lanzarError(String esperado) {
+        System.out.println("[Error sintáctico] línea " + aLex.getLinea());
+        System.out.println("Se esperaba: " + esperado);
+        System.out.println("Se encontró: " + token);
+
+        System.out.println("------------------------------------------------------------------------------");
+		throw new MiExcepcion("Análisis abortado por error sintáctico" + 
+							"\n------------------------------------------------------------------------------");
+    }
 
     /**********************************************************************************************************************************/
 
@@ -104,9 +113,11 @@ public class AnalizadorSintactico {
 			equipara("<");
 			R();
 			E_p();
-		} else if (compararTokens(token, new String[] {")", ",", ";"})) { // Follow(E_p)
+		} else if (compararTokens(token, new String[] {")", ",", ";"})) {
 			bwParse.write(" 3");
-		}
+		} else {
+            lanzarError("'<' ')' ',' ';'");
+        }
 	}
 
 	private void R() throws IOException {
@@ -121,9 +132,11 @@ public class AnalizadorSintactico {
 			equipara("%");
 			U();
 			R_p();
-		} else if (compararTokens(token, new String[] { ")", ",", ";", "<" })) { // Follow(R_p)
+		} else if (compararTokens(token, new String[] { ")", ",", ";", "<" })) {
 			bwParse.write(" 6");
-		}
+		} else {
+            lanzarError("'%' ')' ',' ';' '<'");
+        }
 	}
 
 	private void U() throws IOException {
@@ -134,7 +147,9 @@ public class AnalizadorSintactico {
 		} else if (compararTokens(token, new String[]{"(", "cadena", "numEntero", "ID", "numReal"})) {
 			bwParse.write(" 8");
 			V();
-		}
+		} else {
+            lanzarError("una expresión");
+        }
 	}
 
 	private void V() throws IOException {
@@ -156,7 +171,9 @@ public class AnalizadorSintactico {
 		} else if (token.equals("numReal")) {
 			bwParse.write(" 13");
 			equipara("numReal");
-		}
+		} else {
+            lanzarError("una expresión");
+        }
 	}
 
 	private void V_p() throws IOException {
@@ -167,7 +184,9 @@ public class AnalizadorSintactico {
 			equipara(")");
 		} else if (compararTokens(token, new String[] { "%", ")", ",", ";", "<" })) {
 			bwParse.write(" 14");
-		}
+		} else {
+            lanzarError("un llamado a función o continuación de expresión");
+        }
 	}
 
 	private void S() throws IOException {
@@ -190,7 +209,9 @@ public class AnalizadorSintactico {
 			equipara("return");
 			X();
 			equipara(";");
-		}
+		} else {
+            lanzarError("una sentencia válida (ID, write, read, return)");
+        }
 	}
 
 	private void S_p() throws IOException {
@@ -210,17 +231,21 @@ public class AnalizadorSintactico {
 			L();
 			equipara(")");
 			equipara(";");
-		}
+		} else {
+            lanzarError("una continuación de sentencia (=, +=, llamada a función)");
+        }
 	}
 
-	private void L() throws IOException { // First(L) = First(EQ) = First(E)
+	private void L() throws IOException {
 		if (compararTokens(token, new String[] { "!", "(", "cadena", "numEntero", "ID", "numReal" })) {
 			bwParse.write(" 23");
 			E();
 			Q();
 		} else if (token.equals(")")) {
 			bwParse.write(" 24");
-		}
+		} else {
+            lanzarError("una expresión");
+        }
 	}
 
 	private void Q() throws IOException {
@@ -229,18 +254,22 @@ public class AnalizadorSintactico {
 			equipara(",");
 			E();
 			Q();
-		} else if (token.equals(")")) { // Follow(Q)
+		} else if (token.equals(")")) {
 			bwParse.write(" 26");
-		}
+		} else {
+            lanzarError("una expresión o ')'");
+        }
 	}
 
 	private void X() throws IOException {
 		if (compararTokens(token, new String[] { "!", "(", "cadena", "numEntero", "ID", "numReal" })) {
 			bwParse.write(" 27");
 			E();
-		} else if (compararTokens(token, new String[] { ")", ";" })) { // Follow(X)
+		} else if (compararTokens(token, new String[] { ")", ";" })) {
 			bwParse.write(" 28");
-		}
+		} else {
+            lanzarError("una expresión o ';'");
+        }
 	}
 
 	private void B() throws IOException {
@@ -271,9 +300,11 @@ public class AnalizadorSintactico {
 			Y();
 			equipara(")");
 			equipara("{");
-			B();
+			C();
 			equipara("}");
-		}
+		} else {
+            lanzarError("una sentencia válida (if, let, ID, read, return, write, for)");
+        }
 	}
 
 	private void Y() throws IOException {
@@ -282,7 +313,8 @@ public class AnalizadorSintactico {
 			W();
 		} else { // Y no tiene follow
 			bwParse.write(" 34");
-		}
+            // lanzarError("una asignación o declaración de variable en el for");
+        }
 	}
 
 	private void T() throws IOException {
@@ -298,7 +330,9 @@ public class AnalizadorSintactico {
 		} else if (token.equals("string")) {
 			bwParse.write(" 38");
 			equipara("string");
-		}
+		} else {
+            lanzarError("un tipo válido (int, float, boolean, string)");
+        }
 	}
 
 	private void W() throws IOException {
@@ -306,7 +340,9 @@ public class AnalizadorSintactico {
 			bwParse.write(" 39");
 			equipara("ID");
 			W_p();
-		}
+		} else {
+            lanzarError("un identificador");
+        }
 	}
 
 	private void W_p() throws IOException {
@@ -318,7 +354,9 @@ public class AnalizadorSintactico {
 			bwParse.write(" 41");
 			equipara("+=");
 			E();
-		}
+		} else {
+            lanzarError("una asignación (=, +=)");
+        }
 	}
 
 	private void F() throws IOException {
@@ -333,7 +371,9 @@ public class AnalizadorSintactico {
 			equipara("{");
 			C();
 			equipara("}");
-		}
+		} else {
+            lanzarError("declaración de función (function)");
+        }
 	}
 
 	private void H() throws IOException {
@@ -343,7 +383,9 @@ public class AnalizadorSintactico {
 		} else if (token.equals("void")) {
 			bwParse.write(" 44");
 			equipara("void");
-		}
+		} else {
+            lanzarError("tipo de retorno de función (boolean, float, int, string, void)");
+        }
 	}
 
 	private void A() throws IOException {
@@ -355,18 +397,23 @@ public class AnalizadorSintactico {
 		} else if (token.equals("void")) {
 			bwParse.write(" 46");
 			equipara("void");
-		}
+		} else {
+            lanzarError("lista de parámetros de función");
+        }
 	}
 
 	private void K() throws IOException {
-		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
+		if (compararTokens(token, new String[] { "," })) {
 			bwParse.write(" 47");
+            equipara(",");
 			T();
 			equipara("ID");
 			K();
-		} else if (token.equals(")")) { // Follow(K)
+		} else if (token.equals(")")) {
 			bwParse.write(" 48");
-		}
+		} else {
+            lanzarError("lista de parámetros de función o ')'");
+        }
 	}
 
 	private void C() throws IOException {
@@ -374,9 +421,11 @@ public class AnalizadorSintactico {
 			bwParse.write(" 49");
 			B();
 			C();
-		} else if (token.equals("}")) { // Follow(C)
+		} else if (token.equals("}")) {
 			bwParse.write(" 50");
-		}
+		} else {
+            lanzarError("cuerpo de función o '}'");
+        }
 	}
 
 	private void P() throws IOException {
@@ -388,8 +437,10 @@ public class AnalizadorSintactico {
 			bwParse.write(" 52");
 			F();
 			P();
-		} else if (token.equals("$")) { // Follow(P)
+		} else if (token.equals("$")) {
 			bwParse.write(" 53");
-		}
+		} else {
+            lanzarError("inicio/fin de programa válido");
+        }
 	}
 }

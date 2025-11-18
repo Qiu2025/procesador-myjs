@@ -40,3 +40,4 @@
 <write,>
 <ID,5>
 <puntoComa,>
+<eof,>

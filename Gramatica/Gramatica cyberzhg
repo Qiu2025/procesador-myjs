@@ -1,0 +1,45 @@
+P -> B P | F P | ϵ
+
+E -> R E_p
+
+E_p -> < R E_p | ϵ
+
+R -> U R_p
+
+R_p -> % U R_p | ϵ
+
+U -> ! V | V
+
+V -> id V_p | ( E ) | entero | cadena | real
+
+V_p -> ϵ | ( L )
+
+S -> id S_p | write E ; | read id ; | return X ;
+
+S_p -> = E ; | += E ; | ( L ) ;
+
+L -> E Q | ϵ
+
+Q -> , E Q | ϵ
+
+X -> E | ϵ
+
+B -> if ( E ) S | let T id ; | S | for ( Y ; E ; Y ) { C }
+
+Y -> W | ϵ
+
+T -> int | float | boolean | string
+
+W -> id W_p
+
+W_p -> = E | += E
+
+F -> function H id ( A ) { C }
+
+H -> T | void
+
+A -> T id K | void
+
+K -> , T id K | ϵ
+
+C -> B C | ϵ

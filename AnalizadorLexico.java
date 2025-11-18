@@ -53,14 +53,15 @@ public class AnalizadorLexico {
 	private final int G12 = 12;
 	private final int G13 = 13;
 	private final int G14 = 14;
-	private final int C = 15;
-	private final int C_P = 16; // C'
-	private final int C_PP = 17; // C''
-	private final int L = 18;
-	private final int G = 19;
-	private final int S = 20;
-	private final int S_P = 21; // S'
-	private final int S_PP = 22; // S''
+	private final int G15 = 15;
+	private final int C = 16;
+	private final int C_P = 17; // C'
+	private final int C_PP = 18; // C''
+	private final int L = 19;
+	private final int G = 20;
+	private final int S = 21;
+	private final int S_P = 22; // S'
+	private final int S_PP = 23; // S''
 
 	private final int CARACTER_NO_RECONOCIDO = 30;
 	private final int MISSING_COMILLA_CIERRE = 31;
@@ -102,20 +103,18 @@ public class AnalizadorLexico {
     public String nextToken() throws IOException {
 		reiniciarVariables();
 
-		if (car == -1) { return "$"; } // Devolver $ si se ha leido EOF
-
 		while (estado != ESTADO_FINAL) {
-			final int tipoCar = tipoCaracter((char) car);
-			final Entry<Integer, List<Integer>> transicion = MT_AFD[estado][tipoCar];
-			final Integer nuevoEstado = transicion.getKey();
-			final List<Integer> acciones = transicion.getValue();
+			int tipoCar = tipoCaracter((char) car);
+			Entry<Integer, List<Integer>> transicion = MT_AFD[estado][tipoCar];
+			Integer nuevoEstado = transicion.getKey();
+			List<Integer> acciones = transicion.getValue();
 
 			if (nuevoEstado == null) {
 				tratarError(acciones.get(0));
 				reiniciarVariables();
 			} else {
 				estado = nuevoEstado;
-				for (final int accion : acciones) {
+				for (int accion : acciones) {
 					switch (accion) {
 						case G1 -> G1();
 						case G2 -> G2();
@@ -131,6 +130,7 @@ public class AnalizadorLexico {
 						case G12 -> G12();
 						case G13 -> G13();
 						case G14 -> G14();
+						case G15 -> G15();
 						case C -> C();
 						case C_P -> C_P();
 						case C_PP -> C_PP();
@@ -195,7 +195,7 @@ public class AnalizadorLexico {
     }
 
     private void S_PP() {
-        final int valor = car - '0';
+        int valor = car - '0';
         num += valor / (Math.pow(10, exponente));
         exponente++;
     }
@@ -207,13 +207,13 @@ public class AnalizadorLexico {
                 linea++;
             if (estado == 6)
                 startLine = linea;
-        } catch (final IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void G() {
-        final String value = tablaPR.get(lexema);
+        String value = tablaPR.get(lexema);
         if (value != null) {
             token = "<" + value + ",>";
         } else {
@@ -258,7 +258,7 @@ public class AnalizadorLexico {
     }
 
     private void G13() {
-        final int n = (int) num;
+        int n = (int) num;
         if (n > 32767) {
             tratarError(ENTERO_OVERFLOW);
             reiniciarVariables();
@@ -276,6 +276,8 @@ public class AnalizadorLexico {
         }
     }
 
+	private void G15() { token = "<eof,>"; }
+
 	/**********************************************************************************************************************************/
 
 	private void reiniciarVariables() {
@@ -287,7 +289,7 @@ public class AnalizadorLexico {
 		exponente = 1;
 	}
 
-	private int tipoCaracter(final char car) {
+	private int tipoCaracter(char car) {
 		if ((car >= 'a' && car <= 'z') || (car >= 'A' && car <= 'Z') || car == '_')
 			return LETRA;
 		else if (car >= '0' && car <= '9')
@@ -318,7 +320,7 @@ public class AnalizadorLexico {
 			return NEGACION;
 		else if (car == '<')
 			return MENOR;
-		else if (car == ' ' || car == '\t')
+		else if (car == ' ' || car == '\t' || car == '\r')
 			return DEL;
 		else if (car == '/')
 			return BARRA;
@@ -332,13 +334,12 @@ public class AnalizadorLexico {
 			return OTRO;
 	}
 
-	private void tratarError(final int codError) {
+	private void tratarError(int codError) {
 		String charLeido; // para poder imprimir caracteres especiales como \n, \t
-		int lineaMostrar = linea; // por defecto, imprimimos el número de línea actual
 
 		if (car == '\n') {
 			charLeido = "\\n";
-			lineaMostrar = linea - 1;
+			linea = linea - 1;	// deshacer el incremento
 		} else if (car == '\t') {
 			charLeido = "\\t";
 		} else if (car == ' ') {
@@ -351,13 +352,13 @@ public class AnalizadorLexico {
 
 		switch (codError) {
 			case CARACTER_NO_RECONOCIDO -> {
-                System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
-				System.out.printf("Leyendo: %c\n", charLeido);
+                System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("Leyendo: %s\n", charLeido);
 				System.out.println("Motivo: carácter no reconocido.");
 				L();
 			}
 			case MISSING_COMILLA_CIERRE -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
+				System.out.printf("[Error léxico] línea %d\n", linea);
 				System.out.println("Leyendo: '\\n'");
 				System.out.println("Motivo: se espera una comilla de cierre");
 				L();
@@ -368,38 +369,42 @@ public class AnalizadorLexico {
 				System.out.println("Motivo: se espera una '/' que termine el comentario.");
 			}
 			case MISSING_IGUAL -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
-				System.out.printf("Leyendo: '%c'\n", charLeido);
+				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera el carácter '='.");
 			}
 			case MISSING_ASTERISCO -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
-				System.out.printf("Leyendo: '%c'\n", charLeido);
+				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera el carácter '*'.");
 			}
 			case MISSING_DIGITO -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
-				System.out.printf("Leyendo: '%c'\n", charLeido);
+				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera un dígito.");
 			}
 			case ENTERO_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
+				System.out.printf("[Error léxico] línea %d\n", linea);
 				System.out.printf("Leyendo: '%d'\n", (int) num);
 				System.out.println("Motivo: número entero demasiado grande.");
 			}
 			case REAL_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
+				System.out.printf("[Error léxico] línea %d\n", linea);
 				System.out.printf("Leyendo: '%s'\n", Double.toString(num));
 				System.out.println("Motivo: número real demasiado grande.");
 			}
 			case CADENA_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", lineaMostrar);
+				System.out.printf("[Error léxico] línea %d\n", linea);
 				System.out.printf("Leyendo: \"%s\"\n", lexema);
 				System.out.println("Motivo: cadena demasiado larga.");
 				L();
 			}
 			default -> System.out.println("Error léxico no cubierto por el gestor de errores");
 		}
+
+		System.out.println("--------------------------------------------------------------------------");
+		throw new MiExcepcion("Análisis abortado por error léxico" + 
+							"\n--------------------------------------------------------------------------");
 	}
 
 	private void inicializarTablaTransicion() {
@@ -420,7 +425,7 @@ public class AnalizadorLexico {
 		MT_AFD[0][BARRA] = new AbstractMap.SimpleEntry<>(6, Arrays.asList(L));
 		MT_AFD[0][SALTO] = new AbstractMap.SimpleEntry<>(0, Arrays.asList(L));
 
-		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, new ArrayList<>()); // Si hay EOF, salir
+		MT_AFD[0][EOF] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(G15)); // Generar token EOF
 		MT_AFD[0][IGUAL] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G2));
 		MT_AFD[0][COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G3));
 		MT_AFD[0][PUNTO_COMA] = new AbstractMap.SimpleEntry<>(ESTADO_FINAL, Arrays.asList(L, G4));
@@ -509,5 +514,4 @@ public class AnalizadorLexico {
 		tablaPR.put("void", "void");
 		tablaPR.put("write", "write");
 	}
-
 }

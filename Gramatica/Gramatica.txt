@@ -54,7 +54,7 @@ Producciones = {
     B -> if ( E ) S     //// Sentencias compuestas de aqui abajo
     B -> let T id ;
     B -> S
-    B -> for ( Y ; E ; Y ) { B }
+    B -> for ( Y ; E ; Y ) { C }
 
     Y -> W
     Y -> lambda
@@ -77,7 +77,7 @@ Producciones = {
     A -> T id K
     A -> void
 
-    K -> T id K
+    K -> , T id K
     K -> lambda
 
     C -> B C
