@@ -111,7 +111,7 @@ public class Procesador {
 			car = br.read();
 			analizadorSintactico();
 
-			bwTablaSimbolos = new BufferedWriter(new FileWriter("tablasSimbolos.txt"));
+			bwTablaSimbolos = new BufferedWriter(new FileWriter("tablas.txt"));
 			imprimirTablaGlobal();
 
 			br.close();
