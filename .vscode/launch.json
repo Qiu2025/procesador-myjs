@@ -9,6 +9,13 @@
             "name": "Procesador",
             "request": "launch",
             "mainClass": "Procesador",
+            "projectName": "Procesador-MyJS---PdL_1e3c7eed"
+        },
+        {
+            "type": "java",
+            "name": "Procesador",
+            "request": "launch",
+            "mainClass": "Procesador",
             "projectName": "Procesador-MyJS---PdL_4112d28c"
         },
         {
