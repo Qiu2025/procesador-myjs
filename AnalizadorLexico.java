@@ -152,6 +152,8 @@ public class AnalizadorLexico {
 		return token;
 	}
 
+	public int getLinea() { return linea; }
+
 	public void imprimirTablaGlobal() throws IOException {
 		bwTablaSimbolos.write("TABLA PRINCIPAL #1:\n");
 		for (Map.Entry<String, Integer> entry : tablaSimbolos.entrySet()) {
@@ -508,5 +510,4 @@ public class AnalizadorLexico {
 		tablaPR.put("write", "write");
 	}
 
-	public int getLinea() { return linea; }
 }

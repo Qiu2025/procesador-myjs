@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class Procesador {
-
+	
 	public static void main(String[] args) throws IOException {
 		String rutaEntrada = "entrada.txt";
 		String rutaTokens = "tokens.txt";

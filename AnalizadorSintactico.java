@@ -30,6 +30,8 @@ public class AnalizadorSintactico {
         bwParse.close();
 	}
 
+    /**********************************************************************************************************************************/
+
 	private void equipara(String tokenEsperado) throws IOException {
 		if (token.equals(tokenEsperado)) {
 			token = aLex.nextToken();
@@ -87,6 +89,8 @@ public class AnalizadorSintactico {
 			}
 		}
 	}
+
+    /**********************************************************************************************************************************/
 
 	private void E() throws IOException {
 		bwParse.write(" 1");
