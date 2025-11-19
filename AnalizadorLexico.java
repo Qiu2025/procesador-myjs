@@ -82,7 +82,8 @@ public class AnalizadorLexico {
 	private double num = 0; // valor acumulado (tanto si es entero como real)
 	private int exponente = 1; // para el calculo de parte decimal en caso de real
 
-	private int linea = 1; // contador de lineas
+	private int linea = 1; // contador de lineas, usado internamente (no se imprime)
+	private int tokenLine = 1; // línea donde empezó el token que se está devolviendo, se imprime
 	private int startLine; // línea de comienzo de un comentario
 
 	private String token; // token que genera
@@ -102,6 +103,7 @@ public class AnalizadorLexico {
     
     public String nextToken() throws IOException {
 		reiniciarVariables();
+    	tokenLine = linea;	// guardar la línea del token actual
 
 		while (estado != ESTADO_FINAL) {
 			int tipoCar = tipoCaracter((char) car);
@@ -152,7 +154,7 @@ public class AnalizadorLexico {
 		return token;
 	}
 
-	public int getLinea() { return linea; }
+	public int getLinea() { return tokenLine; }
 
 	public void imprimirTablaGlobal() throws IOException {
 		bwTablaSimbolos.write("TABLA PRINCIPAL #1:\n");
@@ -335,15 +337,16 @@ public class AnalizadorLexico {
 	}
 
 	private void tratarError(int codError) {
-		String charLeido; // para poder imprimir caracteres especiales como \n, \t
+		String charLeido; // para poder imprimir caracteres especiales como \n, \t, \r
 
 		if (car == '\n') {
 			charLeido = "\\n";
-			linea = linea - 1;	// deshacer el incremento
 		} else if (car == '\t') {
 			charLeido = "\\t";
 		} else if (car == ' ') {
 			charLeido = "espacio";
+		} else if (car == '\r') {
+    		charLeido = "\\r";
 		} else if (car == -1) {
 			charLeido = "EOF";
 		} else {
@@ -352,13 +355,13 @@ public class AnalizadorLexico {
 
 		switch (codError) {
 			case CARACTER_NO_RECONOCIDO -> {
-                System.out.printf("[Error léxico] línea %d\n", linea);
+                System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: %s\n", charLeido);
 				System.out.println("Motivo: carácter no reconocido.");
 				L();
 			}
 			case MISSING_COMILLA_CIERRE -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.println("Leyendo: '\\n'");
 				System.out.println("Motivo: se espera una comilla de cierre");
 				L();
@@ -369,32 +372,32 @@ public class AnalizadorLexico {
 				System.out.println("Motivo: se espera una '/' que termine el comentario.");
 			}
 			case MISSING_IGUAL -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera el carácter '='.");
 			}
 			case MISSING_ASTERISCO -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera el carácter '*'.");
 			}
 			case MISSING_DIGITO -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: '%s'\n", charLeido);
 				System.out.println("Motivo: se espera un dígito.");
 			}
 			case ENTERO_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: '%d'\n", (int) num);
 				System.out.println("Motivo: número entero demasiado grande.");
 			}
 			case REAL_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: '%s'\n", Double.toString(num));
 				System.out.println("Motivo: número real demasiado grande.");
 			}
 			case CADENA_OVERFLOW -> {
-				System.out.printf("[Error léxico] línea %d\n", linea);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: \"%s\"\n", lexema);
 				System.out.println("Motivo: cadena demasiado larga.");
 				L();
