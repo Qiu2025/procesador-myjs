@@ -1,0 +1,6 @@
+let boolean a;
+
+a = 5 <  ;
+
+
+

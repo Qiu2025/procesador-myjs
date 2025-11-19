@@ -1,0 +1,4 @@
+function void f(int a, void)
+{
+	write a;
+}

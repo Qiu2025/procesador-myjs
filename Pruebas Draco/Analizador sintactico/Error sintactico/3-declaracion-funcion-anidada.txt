@@ -1,0 +1,5 @@
+function void externa(void) {
+    function int anidada(void) {
+        return 1;
+    }
+}

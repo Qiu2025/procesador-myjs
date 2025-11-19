@@ -420,3 +420,5 @@ FodyWeavers.xsd
 # Otros
 .vscode/
 README.md
+
+*.class
