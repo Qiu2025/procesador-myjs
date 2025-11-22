@@ -1,0 +1,36 @@
+let boolean  booleano;
+let string _321;
+write 4%5%77;
+_321=_321;
+function  boolean bisiesto  (int a)	
+{	let string bis;
+	write 'Es bisiesto?';
+	read bis;
+	return ((a % 4 < 0));	
+}
+function int dias (int m, int a)
+{
+	let int dd;
+	write('di cuantos dias tiene el mes ');
+	write m;
+	write ' de '; write a;
+	read dd;
+	if (bisiesto(a)) dd = dd % 1;
+	return dd;
+}
+function  boolean esFechaCorrecta (int d, int m, int a)	
+{
+	return (d < dias (m, a));
+}
+function int demo 
+(void)	
+{
+let  float  X;
+
+	if (esFechaCorrecta(30, 02, 2088)) 
+
+	write  X ;
+
+}
+let boolean  a_1_b_2_;
+demo();

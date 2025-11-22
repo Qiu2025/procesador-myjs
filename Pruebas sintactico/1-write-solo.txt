@@ -1,0 +1,13 @@
+read a;
+write b;
+
+
+write;
+
+
+
+
+
+
+
+

@@ -1,6 +1,40 @@
-
-
-
-for (i += 1;i +=10;i+=1) { 
-    write i;
+let string texto;
+function void output(string m_s_g)
+{
+	write 'Mensaje introducido:';
+	write m_s_g;
 }
+function void pideTexto ( void )
+{
+	write 'Introduce un texto corto';
+	read texto;
+}
+let int aa_aa ;
+let  int iiii;
+let string s64 ;
+let boolean bo;
+let float rr_rr;
+
+function int ffff  (void)
+{
+  aa_aa=11 
+
+aa_aa= iiii  %  33;
+
+return aa_aa;
+}	
+
+write  aa_aa ;
+
+iiii=aa_aa;
+	
+write ffff();
+let float num_real;
+pideTexto();
+let  string  textoAux;textoAux = texto;
+output
+ (
+ textoAux                                                    
+ )
+ ;
+write num_real;
