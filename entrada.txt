@@ -1,40 +1,56 @@
-let string texto;
-function void output(string m_s_g)
+let string s ;	/** variable global cadena **/
+let int    uno;
+let int    UNO;
+let float  dos;
+let 
+boolean 
+booleano
+;
+
+dos=2.222222;function int Factorial  (int n)
 {
-	write 'Mensaje introducido:';
-	write m_s_g;
+	let  int i;
+	let int factorial ;
+	for (i = uno; i < n; i = i %3)
+	{
+		factorial = factorial%i;
+		let float DOS;
+		DOS=dos;
+	}
+	return factorial;
 }
-function void pideTexto ( void )
+s = 'El factorial !\nIntroduce un valor entero.';	
+
+write (s);
+read num;
+let 
+boolean
+bool
+ 
+;
+
+
+function void input(string fff){read pp_f;}
+ 
+ write 00.00;let float tres;
+let int   For;
+let int   functional;
+let int   While;	
+
+function void output (string s, string msg, int f_f_, float _f_f)	
 {
-	write 'Introduce un texto corto';
-	read texto;
+	write (s); write msg; write(f_f_); write (_f_f%dos);
+	return;	
 }
-let int aa_aa ;
-let  int iiii;
-let string s64 ;
-let boolean bo;
-let float rr_rr;
-
-function int ffff  (void)
+tres=3.0;function  string cadena(boolean logic)
 {
-  aa_aa=11 
+	for (uno=1; logic;uno+=2)
+	{
+		output (s, 'hola', 3333, dos);
+		if (uno < UNO)	return s;
+	}
+}
+uno=1;UNO=uno;
+if (num < 0)		write ('No existe el factorial de un valor negativo!');
+output (cadena (booleano), 'recursivo es: ', Factorial (num), dos);
 
-aa_aa= iiii  %  33;
-
-return aa_aa;
-}	
-
-write  aa_aa ;
-
-iiii=aa_aa;
-	
-write ffff();
-let float num_real;
-pideTexto();
-let  string  textoAux;textoAux = texto;
-output
- (
- textoAux                                                    
- )
- ;
-write num_real;

@@ -1,0 +1,56 @@
+let string s ;	/** variable global cadena **/
+let int    uno;
+let int    UNO;
+let float  dos;
+let 
+boolean 
+booleano
+;
+
+dos=2.222222;function int Factorial  (int n)
+{
+	let  int i;
+	let int factorial ;
+	for (i = uno; i < n; i = i %3)
+	{
+		factorial = factorial%i;
+		let float DOS;
+		DOS=dos;
+	}
+	return factorial;
+}
+s = 'El factorial !\nIntroduce un valor entero.';	
+
+write (s);
+read num;
+let 
+boolean
+bool
+ 
+;
+
+
+function void input(string fff){read pp_f;}
+ 
+ write 00.00;let float tres;
+let int   For;
+let int   functional;
+let int   While;	
+
+function void output (string s, string msg, int f_f_, float _f_f)	
+{
+	write (s); write msg; write(f_f_); write (_f_f%dos);
+	return;	
+}
+tres=3.0;function  string cadena(boolean logic)
+{
+	for (uno=1; logic;uno+=2)
+	{
+		output (s, 'hola', 3333, dos);
+		if (uno < UNO)	return s;
+	}
+}
+uno=1;UNO=uno;
+if (num < 0)		write ('No existe el factorial de un valor negativo!');
+output (cadena (booleano), 'recursivo es: ', Factorial (num), dos);
+
