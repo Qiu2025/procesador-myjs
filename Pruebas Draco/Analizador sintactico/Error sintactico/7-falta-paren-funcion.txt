@@ -1,2 +1,0 @@
-function void hola(void) { }
-hola;
