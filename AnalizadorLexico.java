@@ -12,10 +12,8 @@ public class AnalizadorLexico {
 	@SuppressWarnings("unchecked")
 	private final Entry<Integer, List<Integer>>[][] MT_AFD = new Entry[NUMERO_ESTADOS][NUMERO_CARACTERES];
 	private final HashMap<String, String> tablaPR = new HashMap<>();
-	private HashMap<String, Integer> tablaSimbolos = new HashMap<>();
 	private BufferedReader br;
 	private BufferedWriter bwTokens;
-	private BufferedWriter bwTablaSimbolos;
 
 	private final int LETRA = 0;
 	private final int DIGITO = 1;
@@ -93,7 +91,6 @@ public class AnalizadorLexico {
     public AnalizadorLexico(String rutaEntrada, String rutaTokens, String rutaTS) throws IOException {
         br = new BufferedReader(new FileReader(rutaEntrada));
 		bwTokens = new BufferedWriter(new FileWriter(rutaTokens));
-		bwTablaSimbolos = new BufferedWriter(new FileWriter(rutaTS));
 
         car = br.read();    // El caracter de entrada para el estado 0
 
@@ -157,16 +154,14 @@ public class AnalizadorLexico {
 	public int getLinea() { return tokenLine; }
 
 	public void imprimirTablaGlobal() throws IOException {
-		bwTablaSimbolos.write("TABLA PRINCIPAL #1:\n");
-		for (Map.Entry<String, Integer> entry : tablaSimbolos.entrySet()) {
-			bwTablaSimbolos.write("* LEXEMA: '" + entry.getKey() + "'\n");
-		}
+		AnalizadorSintactico.gestor.write(TS_Gestor.Tabla.GLOBAL);
 	}
 
 	public void cerrarRecursos() throws IOException {
 		br.close();
 		bwTokens.close();
-		bwTablaSimbolos.close();
+		AnalizadorSintactico.gestor.destroy(TS_Gestor.Tabla.GLOBAL);
+		AnalizadorSintactico.gestor.destroy(TS_Gestor.Tabla.PALRES);
 	}
 
     /**********************************************************************************************************************************/
@@ -219,11 +214,10 @@ public class AnalizadorLexico {
         if (value != null) {
             token = "<" + value + ",>";
         } else {
-            Integer id = tablaSimbolos.get(lexema);
-            if (id == null) {
-                id = tablaSimbolos.size() + 1;
-                tablaSimbolos.put(lexema, id);
-            }
+			int id = AnalizadorSintactico.gestor.getEntradaTS(lexema);
+			if (id == 0) {
+				id = AnalizadorSintactico.gestor.addEntradaTSGlobal(lexema);
+			}
             token = "<ID," + id + ">";
         }
     }

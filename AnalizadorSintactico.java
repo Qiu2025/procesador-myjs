@@ -5,8 +5,11 @@ public class AnalizadorSintactico {
     private String token; // token devuelto por el lexico
     private AnalizadorLexico aLex;
     private BufferedWriter bwParse;
+	public static TS_Gestor gestor;
+	private int idPos;
 
     public AnalizadorSintactico(String rutaEntrada, String rutaTokens, String rutaParse, String rutaTS) throws IOException {
+		inicializarGestor(rutaTS);
         aLex = new AnalizadorLexico(rutaEntrada, rutaTokens, rutaTS);
         bwParse = new BufferedWriter(new FileWriter(rutaParse));
 		bwParse.write("descendente");
@@ -84,7 +87,12 @@ public class AnalizadorSintactico {
 				else if (token.contains("cadena"))
 					token = "cadena";
 				else if (token.contains("ID"))
+				{
+					int coma = token.indexOf(',');
+					int fin = token.indexOf('>');
+					idPos = Integer.parseInt(token.substring(coma+1, fin));
 					token = "ID";
+				}
 			}
 		}
 	}
@@ -442,5 +450,44 @@ public class AnalizadorSintactico {
 		} else {
             lanzarError("inicio/fin de programa válido");
         }
+	}
+
+	private void inicializarGestor(String rutaTS) {
+		gestor = new TS_Gestor(rutaTS);
+		// Palabras reservadas
+		gestor.createTPalabrasReservadas();
+		String[] palabras = {"boolean","float","for","function","if","int","let","read","return","string","void","write"};
+		for (String pr : palabras) gestor.addEntradaTPalabrasReservadas(pr);
+		// Atributos
+		TS_Gestor.DescripcionAtributo[] descs = {
+			TS_Gestor.DescripcionAtributo.DIR,
+			TS_Gestor.DescripcionAtributo.NUM_PARAM,
+			TS_Gestor.DescripcionAtributo.TIPO_PARAM,
+			TS_Gestor.DescripcionAtributo.MODO_PARAM,
+			TS_Gestor.DescripcionAtributo.TIPO_RET,
+			TS_Gestor.DescripcionAtributo.ETIQUETA,
+			TS_Gestor.DescripcionAtributo.PARAM,
+			TS_Gestor.DescripcionAtributo.OTROS,
+			TS_Gestor.DescripcionAtributo.OTROS
+		};
+		TS_Gestor.TipoDatoAtributo[] tipos = {
+			TS_Gestor.TipoDatoAtributo.ENTERO,
+			TS_Gestor.TipoDatoAtributo.ENTERO,
+			TS_Gestor.TipoDatoAtributo.LISTA,
+			TS_Gestor.TipoDatoAtributo.LISTA,
+			TS_Gestor.TipoDatoAtributo.CADENA,
+			TS_Gestor.TipoDatoAtributo.CADENA,
+			TS_Gestor.TipoDatoAtributo.ENTERO,
+			TS_Gestor.TipoDatoAtributo.ENTERO,
+			TS_Gestor.TipoDatoAtributo.CADENA
+		};
+		String[] nombres = {"direccion","numero de parametros","tipo de parametros","modo de parametros",
+							"tipo de retorno","etiqueta","parametro","dimension","elem"};
+		
+		for (int i = 0; i < nombres.length; i++) {
+			gestor.createAtributo(nombres[i], descs[i], tipos[i]);
+		}
+		
+		gestor.createTSGlobal();
 	}
 }

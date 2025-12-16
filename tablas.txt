@@ -1,12 +1,34 @@
 TABLA PRINCIPAL #1:
-* LEXEMA: 'ff'
-* LEXEMA: 'ss'
-* LEXEMA: 'n1'
-* LEXEMA: 'n2'
-* LEXEMA: 'l1'
-* LEXEMA: 'l2'
-* LEXEMA: 'cad'
-* LEXEMA: 'lllll'
-* LEXEMA: 'f1'
-* LEXEMA: 'f2'
-* LEXEMA: 'letglobal'
+*LEXEMA: 'n1'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'n2'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'f1'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'f2'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'l1'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'l2'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'cad'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'lllll'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'ff'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'ss'
+	Atributos:
+	+ Tipo: '-'
+*LEXEMA: 'letglobal'
+	Atributos:
+	+ Tipo: '-'
