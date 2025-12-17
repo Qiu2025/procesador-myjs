@@ -1,3 +1,4 @@
+
 import java.io.*;
 
 public class Procesador {
@@ -8,7 +9,16 @@ public class Procesador {
 		String rutaParse = "parse.txt";
 		String rutaTS = "tablas.txt";
 
-		AnalizadorSintactico aSint = new AnalizadorSintactico(rutaEntrada, rutaTokens, rutaParse, rutaTS);
+		TablaSimbolos ts = new TablaSimbolos(rutaTS);
+		ts.init();
+
+		ASSGemini aSint = new ASSGemini(rutaEntrada, rutaTokens, rutaParse, ts);
 		aSint.start();
+
+		// ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
+		// aSint.start();
+
+		ts.print();
+		ts.destroyAll();
 	}
 }

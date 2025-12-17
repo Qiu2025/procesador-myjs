@@ -1,6 +1,6 @@
 
 /**
- * Representaci�n de un atributo.
+ * Representacion de un atributo.
  * 
  * @author Carolina Garza Bravo
  */
@@ -15,7 +15,7 @@ public class Atributo {
 	 */
 	private TS_Gestor.TipoDatoAtributo td;
 	/**
-	 * Descripci�n del atributo.
+	 * Descripcion del atributo.
 	 */
 	private TS_Gestor.DescripcionAtributo des;
 	/**
@@ -38,7 +38,7 @@ public class Atributo {
 	/**
 	 * Crea un atributo.
 	 * @param nombre Nombre del atributo.
-	 * @param des Decripci�n del atributo.
+	 * @param des Decripcion del atributo.
 	 * @param td Tipo de dato del atributo.
 	 */
 	public Atributo(String nombre,TS_Gestor.DescripcionAtributo des,TS_Gestor.TipoDatoAtributo td) {
@@ -68,8 +68,8 @@ public class Atributo {
 	}
 	
 	/**
-	 * Devuelve la descripci�n del atributo.
-	 * @return La descripci�n del atributo.
+	 * Devuelve la descripcion del atributo.
+	 * @return La descripcion del atributo.
 	 */
 	public TS_Gestor.DescripcionAtributo getDescripcionAtributo() {
 		return des;
@@ -87,7 +87,7 @@ public class Atributo {
 	 * Da valor entero al atributo.
 	 * @param valor Valor que se le quiere dar.
 	 * @return 0 si todo ha salido bien, 8 si el tipo de dato del atributo no es entero o 7 si el atributo
-	 * ya ten�a valor.
+	 * ya tenia valor.
 	 */
 	public int setValorEnt(int valor) {
 		int res=0;
@@ -113,7 +113,7 @@ public class Atributo {
 	public int getValorEnt() {
 		if(td==TS_Gestor.TipoDatoAtributo.ENTERO) {
 			if(valorEnt==-1) {
-				System.out.println("-1 es un valor v�lido.");
+				System.out.println("-1 es un valor valido.");
 			}
 			return valorEnt;
 		}
@@ -126,7 +126,7 @@ public class Atributo {
 	 * Da valor de cadena al atributo.
 	 * @param valor Valor que se le quiere dar al atributo.
 	 * @return 0 si todo ha salido bien, 8 si el tipo de dato del atributo no es cadena o 7 si el atributo
-	 * ya ten�a valor.
+	 * ya tenia valor.
 	 */
 	public int setValorCad(String valor) {
 		int res=0;
@@ -162,7 +162,7 @@ public class Atributo {
 	 * Da valor en forma de lista de cadenas al atributo.
 	 * @param valor Valor que se le quiere dar al atributo.
 	 * @return 0 si todo ha salido bien, 8 si el tipo de dato del atributo no es lista o 7 si el atributo
-	 * ya ten�a valor.
+	 * ya tenia valor.
 	 */
 	public int setValorLista(String[] valor) {
 		int res=0;

@@ -1,21 +1,68 @@
 import java.io.*;
+import java.util.*;
 
-public class AnalizadorSintactico {
+public class ASintacticoSemantico {
     
-    private String token; // token devuelto por el lexico
-    private AnalizadorLexico aLex;
-    private BufferedWriter bwParse;
-	public static TS_Gestor gestor;
-	private int idPos;
+	// Tabla de simbolos
+	private TablaSimbolos ts;
 
-    public AnalizadorSintactico(String rutaEntrada, String rutaTokens, String rutaParse, String rutaTS) throws IOException {
-		inicializarGestor(rutaTS);
-        aLex = new AnalizadorLexico(rutaEntrada, rutaTokens, rutaTS);
+	// Analizador sintactico
+    private String token; // token devuelto por el lexico
+	private int id_pos;	// atributo del token cuando es un ID
+	
+    private ALexico aLex;
+    private BufferedWriter bwParse;
+
+	// Analizador semantico
+	private int despG;	// desplazamiento global
+	private int despL;	// desplazamiento local
+	private boolean zonaDecl;	// zona declaracion
+
+	public static final String T_ENTERO   = "entero";
+	public static final String T_REAL     = "real";
+	public static final String T_LOGICO   = "logico";
+	public static final String T_CADENA   = "cadena";
+	public static final String T_VACIO    = "vacio";
+	public static final String T_FUNCION  = "funcion";
+
+	// Atributos de TS
+	public static final String ATR_DESPL        = "Despl";
+	public static final String ATR_NUM_PARAM    = "NumParam";
+	public static final String ATR_TIPO_PARAM   = "TipoParam";
+	public static final String ATR_MODO_PARAM   = "ModoParam";
+	public static final String ATR_TIPO_RETORNO = "TipoRetorno";
+	public static final String ATR_ETIQ_FUNCION = "EtiqFuncion";
+	public static final String ATR_PARAM        = "Param";
+
+	// ===== Claves de atributos semánticos (no terminales) =====
+	public static final String TIPO        = "tipo";
+	public static final String TIPO_IZQ    = "tipoIzq";
+	public static final String TIPO_RET    = "tipoRet";
+	public static final String N           = "n";
+	public static final String LLAMAFUNC   = "llamaFunc";
+	public static final String VALOR       = "valor";
+	public static final String TAMANO      = "tamano";    // tamaño de T
+	public static final String FUNCTION    = "function";  // flag C.function / S.function
+
+	// Tipos auxiliares de comprobación (sentencias/bloques)
+	public static final String T_OK       = "tipo_ok";
+	public static final String T_ERROR    = "tipo_error";
+
+    public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts) throws IOException {
+		this.ts = ts;
+        aLex = new ALexico(rutaEntrada, rutaTokens, ts);
         bwParse = new BufferedWriter(new FileWriter(rutaParse));
 		bwParse.write("descendente");
     }
     
 	public void start() throws IOException {
+		ts.createTSGlobal();
+		despG = 0;
+		// TSL = false;
+		despL = 0;
+		zonaDecl = false;
+
+
 		token = aLex.nextToken();
         formatearToken();
 		P();
@@ -26,11 +73,10 @@ public class AnalizadorSintactico {
 			System.out.println("Se encontró: " + token);
 		}
 
-        // Hacer el volcado a los ficheros y cerrar recursos
-        aLex.imprimirTablaGlobal();
-        aLex.cerrarRecursos();
+		ts.destroyAll();
 
-        bwParse.close();
+        aLex.cerrarRecursos();
+		cerrarRecursos();
 	}
 
     /**********************************************************************************************************************************/
@@ -40,7 +86,7 @@ public class AnalizadorSintactico {
 			token = aLex.nextToken();
 			formatearToken();
 		} else {
-			lanzarError(tokenEsperado);
+			errorSintactico(tokenEsperado);
 		}
 	}
 
@@ -90,14 +136,14 @@ public class AnalizadorSintactico {
 				{
 					int coma = token.indexOf(',');
 					int fin = token.indexOf('>');
-					idPos = Integer.parseInt(token.substring(coma+1, fin));
+					id_pos = Integer.parseInt(token.substring(coma+1, fin));
 					token = "ID";
 				}
 			}
 		}
 	}
 
-    private void lanzarError(String esperado) {
+    private void errorSintactico(String esperado) {
         System.out.println("[Error sintáctico] línea " + aLex.getLinea());
         System.out.println("Se esperaba: " + esperado);
         System.out.println("Se encontró: " + token);
@@ -107,31 +153,50 @@ public class AnalizadorSintactico {
 							"\n------------------------------------------------------------------------------");
     }
 
-    /**********************************************************************************************************************************/
+	private void errorSemantico(String mensaje) {
+		System.out.println("[Error semántico] línea " + aLex.getLinea());
+		System.out.println(mensaje);
 
-	private void E() throws IOException {
-		bwParse.write(" 1");
-		R();
-		E_p();
+		System.out.println("------------------------------------------------------------------------------");
+		throw new MiExcepcion("Análisis abortado por error semántico" + 
+							"\n------------------------------------------------------------------------------");
 	}
 
-	private void E_p() throws IOException {
+	private void cerrarRecursos() throws IOException {
+		bwParse.close();
+	}
+
+    /**********************************************************************************************************************************/
+
+	// E → R { E_p.tipoIzq := R.tipo } E_p { E.tipo := E_p.tipo }
+	private HashMap<String,Object> E() throws IOException {
+		bwParse.write(" 1");
+
+		HashMap<String,Object> r = R();
+		return E_p((String) r.get(TIPO));
+	}
+
+	private HashMap<String,Object> E_p(String tipoIzq) throws IOException {
+		HashMap<String, Object> ep1 = new HashMap<>();
 		if (token.equals("<")) {
 			bwParse.write(" 2");
 			equipara("<");
 			R();
-			E_p();
+			E_p(null);
 		} else if (compararTokens(token, new String[] {")", ",", ";"})) {
 			bwParse.write(" 3");
 		} else {
-            lanzarError("'<' ')' ',' ';'");
+            errorSintactico("'<' ')' ',' ';'");
         }
+		return ep1;
 	}
 
-	private void R() throws IOException {
+	private HashMap<String, Object> R() throws IOException {
+		HashMap<String,Object> r1 = new HashMap<>();
 		bwParse.write(" 4");
 		U();
 		R_p();
+		return r1;
 	}
 
 	private void R_p() throws IOException {
@@ -143,7 +208,7 @@ public class AnalizadorSintactico {
 		} else if (compararTokens(token, new String[] { ")", ",", ";", "<" })) {
 			bwParse.write(" 6");
 		} else {
-            lanzarError("'%' ')' ',' ';' '<'");
+            errorSintactico("'%' ')' ',' ';' '<'");
         }
 	}
 
@@ -156,7 +221,7 @@ public class AnalizadorSintactico {
 			bwParse.write(" 8");
 			V();
 		} else {
-            lanzarError("una expresión");
+            errorSintactico("una expresión");
         }
 	}
 
@@ -180,7 +245,7 @@ public class AnalizadorSintactico {
 			bwParse.write(" 13");
 			equipara("numReal");
 		} else {
-            lanzarError("una expresión");
+            errorSintactico("una expresión");
         }
 	}
 
@@ -193,7 +258,7 @@ public class AnalizadorSintactico {
 		} else if (compararTokens(token, new String[] { "%", ")", ",", ";", "<" })) {
 			bwParse.write(" 14");
 		} else {
-            lanzarError("un llamado a función o continuación de expresión");
+            errorSintactico("un llamado a función o continuación de expresión");
         }
 	}
 
@@ -218,7 +283,7 @@ public class AnalizadorSintactico {
 			X();
 			equipara(";");
 		} else {
-            lanzarError("una sentencia válida (ID, write, read, return)");
+            errorSintactico("una sentencia válida (ID, write, read, return)");
         }
 	}
 
@@ -240,7 +305,7 @@ public class AnalizadorSintactico {
 			equipara(")");
 			equipara(";");
 		} else {
-            lanzarError("una continuación de sentencia (=, +=, llamada a función)");
+            errorSintactico("una continuación de sentencia (=, +=, llamada a función)");
         }
 	}
 
@@ -252,7 +317,7 @@ public class AnalizadorSintactico {
 		} else if (token.equals(")")) {
 			bwParse.write(" 24");
 		} else {
-            lanzarError("una expresión");
+            errorSintactico("una expresión");
         }
 	}
 
@@ -265,7 +330,7 @@ public class AnalizadorSintactico {
 		} else if (token.equals(")")) {
 			bwParse.write(" 26");
 		} else {
-            lanzarError("una expresión o ')'");
+            errorSintactico("una expresión o ')'");
         }
 	}
 
@@ -276,11 +341,12 @@ public class AnalizadorSintactico {
 		} else if (compararTokens(token, new String[] { ")", ";" })) {
 			bwParse.write(" 28");
 		} else {
-            lanzarError("una expresión o ';'");
+            errorSintactico("una expresión o ';'");
         }
 	}
 
-	private void B() throws IOException {
+	private HashMap<String, Object> B() throws IOException {
+		HashMap<String,Object> b1 = new HashMap<>();
 		if (token.equals("if")) {
 			bwParse.write(" 29");
 			equipara("if");
@@ -311,8 +377,9 @@ public class AnalizadorSintactico {
 			C();
 			equipara("}");
 		} else {
-            lanzarError("una sentencia válida (if, let, ID, read, return, write, for)");
+            errorSintactico("una sentencia válida (if, let, ID, read, return, write, for)");
         }
+		return b1;
 	}
 
 	private void Y() throws IOException {
@@ -325,7 +392,8 @@ public class AnalizadorSintactico {
         }
 	}
 
-	private void T() throws IOException {
+	private HashMap<String, Object> T() throws IOException {
+		HashMap<String,Object> at = new HashMap<>();
 		if (token.equals("int")) {
 			bwParse.write(" 35");
 			equipara("int");
@@ -339,8 +407,9 @@ public class AnalizadorSintactico {
 			bwParse.write(" 38");
 			equipara("string");
 		} else {
-            lanzarError("un tipo válido (int, float, boolean, string)");
+            errorSintactico("un tipo válido (int, float, boolean, string)");
         }
+		return at;
 	}
 
 	private void W() throws IOException {
@@ -349,7 +418,7 @@ public class AnalizadorSintactico {
 			equipara("ID");
 			W_p();
 		} else {
-            lanzarError("un identificador");
+            errorSintactico("un identificador");
         }
 	}
 
@@ -363,7 +432,7 @@ public class AnalizadorSintactico {
 			equipara("+=");
 			E();
 		} else {
-            lanzarError("una asignación (=, +=)");
+            errorSintactico("una asignación (=, +=)");
         }
 	}
 
@@ -372,15 +441,29 @@ public class AnalizadorSintactico {
 			bwParse.write(" 42");
 			equipara("function");
 			H();
+
+			zonaDecl = true;
+			int idFunc = id_pos;
+
 			equipara("ID");
+
+			ts.createTSLocal();
+			despL = 0;
+
 			equipara("(");
 			A();
+
+			zonaDecl = false;
+			ts.setTipo(idFunc,T_FUNCION);
+			
+			
+
 			equipara(")");
 			equipara("{");
 			C();
 			equipara("}");
 		} else {
-            lanzarError("declaración de función (function)");
+            errorSintactico("declaración de función (function)");
         }
 	}
 
@@ -392,7 +475,7 @@ public class AnalizadorSintactico {
 			bwParse.write(" 44");
 			equipara("void");
 		} else {
-            lanzarError("tipo de retorno de función (boolean, float, int, string, void)");
+            errorSintactico("tipo de retorno de función (boolean, float, int, string, void)");
         }
 	}
 
@@ -406,34 +489,65 @@ public class AnalizadorSintactico {
 			bwParse.write(" 46");
 			equipara("void");
 		} else {
-            lanzarError("lista de parámetros de función");
+            errorSintactico("lista de parámetros de función");
         }
 	}
 
-	private void K() throws IOException {
+	private HashMap<String, Object> K() throws IOException {
+		HashMap<String,Object> k1 = new HashMap<>();
 		if (compararTokens(token, new String[] { "," })) {
 			bwParse.write(" 47");
             equipara(",");
-			T();
+			HashMap<String, Object> t = T();
+			int id = id_pos;
 			equipara("ID");
-			K();
+			HashMap<String, Object> k2 = K();
+			ts.setTipo(id, (String)t.get(TIPO));
+			ts.setValorAtributoEnt(id, ATR_DESPL, ts.existeTSL ? despL : despG);
+			if(ts.existeTSL) despL+=(Integer)t.get(TAMANO); else despG+=(Integer)t.get(TAMANO);
+			k1.put(N, (Integer)k2.get(N)+1);
+			List<String> tipos = Arrays.asList((String[])k2.get(TIPO));
+			tipos.addFirst((String)t.get(TIPO));
+			k1.put(TIPO, tipos.toArray());
 		} else if (token.equals(")")) {
 			bwParse.write(" 48");
+			k1.put(N, 0);
 		} else {
-            lanzarError("lista de parámetros de función o ')'");
+            errorSintactico("lista de parámetros de función o ')'");
         }
+		return k1;
 	}
 
-	private void C() throws IOException {
+	private HashMap<String,Object> C() throws IOException {
+		HashMap<String,Object> at = new HashMap<>();
 		if (compararTokens(token, new String[] { "for", "ID", "if", "let", "read", "return", "write" })) {
 			bwParse.write(" 49");
-			B();
-			C();
+			HashMap<String, Object> b = B();
+			HashMap<String, Object> c = C();
+
+			if(b.get(TIPO).equals(c.get(TIPO)) && b.get(TIPO).equals(T_OK)){
+				at.put(TIPO, T_OK);
+			}else{
+				at.put(TIPO, T_ERROR);
+			}
+
+			if(b.get(TIPO_RET).equals(T_VACIO)){
+				at.put(TIPO_RET, c.get(TIPO_RET));
+			}else{
+				if(c.get(TIPO_RET).equals(T_VACIO)){
+					at.put(TIPO_RET, b.get(TIPO_RET));
+				}else{
+					errorSemantico("múltiples sentencias return en el mismo bloque");
+				}
+			}
 		} else if (token.equals("}")) {
 			bwParse.write(" 50");
+			at.put(TIPO, T_OK);
+			at.put(TIPO_RET, T_VACIO);
 		} else {
-            lanzarError("cuerpo de función o '}'");
+            errorSintactico("cuerpo de función o '}'");
         }
+		return at;
 	}
 
 	private void P() throws IOException {
@@ -448,46 +562,9 @@ public class AnalizadorSintactico {
 		} else if (token.equals("$")) {
 			bwParse.write(" 53");
 		} else {
-            lanzarError("inicio/fin de programa válido");
+            errorSintactico("inicio/fin de programa válido");
         }
 	}
 
-	private void inicializarGestor(String rutaTS) {
-		gestor = new TS_Gestor(rutaTS);
-		// Palabras reservadas
-		gestor.createTPalabrasReservadas();
-		String[] palabras = {"boolean","float","for","function","if","int","let","read","return","string","void","write"};
-		for (String pr : palabras) gestor.addEntradaTPalabrasReservadas(pr);
-		// Atributos
-		TS_Gestor.DescripcionAtributo[] descs = {
-			TS_Gestor.DescripcionAtributo.DIR,
-			TS_Gestor.DescripcionAtributo.NUM_PARAM,
-			TS_Gestor.DescripcionAtributo.TIPO_PARAM,
-			TS_Gestor.DescripcionAtributo.MODO_PARAM,
-			TS_Gestor.DescripcionAtributo.TIPO_RET,
-			TS_Gestor.DescripcionAtributo.ETIQUETA,
-			TS_Gestor.DescripcionAtributo.PARAM,
-			TS_Gestor.DescripcionAtributo.OTROS,
-			TS_Gestor.DescripcionAtributo.OTROS
-		};
-		TS_Gestor.TipoDatoAtributo[] tipos = {
-			TS_Gestor.TipoDatoAtributo.ENTERO,
-			TS_Gestor.TipoDatoAtributo.ENTERO,
-			TS_Gestor.TipoDatoAtributo.LISTA,
-			TS_Gestor.TipoDatoAtributo.LISTA,
-			TS_Gestor.TipoDatoAtributo.CADENA,
-			TS_Gestor.TipoDatoAtributo.CADENA,
-			TS_Gestor.TipoDatoAtributo.ENTERO,
-			TS_Gestor.TipoDatoAtributo.ENTERO,
-			TS_Gestor.TipoDatoAtributo.CADENA
-		};
-		String[] nombres = {"direccion","numero de parametros","tipo de parametros","modo de parametros",
-							"tipo de retorno","etiqueta","parametro","dimension","elem"};
-		
-		for (int i = 0; i < nombres.length; i++) {
-			gestor.createAtributo(nombres[i], descs[i], tipos[i]);
-		}
-		
-		gestor.createTSGlobal();
-	}
+	/**********************************************************************************************************************************/
 }

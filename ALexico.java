@@ -1,8 +1,12 @@
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class AnalizadorLexico {
+public class ALexico {
+
+	// Tabla de simbolos
+	private TablaSimbolos ts;
 	
 	private final int NUMERO_ESTADOS = 11;
 	private final int NUMERO_CARACTERES = 21;
@@ -11,7 +15,6 @@ public class AnalizadorLexico {
 
 	@SuppressWarnings("unchecked")
 	private final Entry<Integer, List<Integer>>[][] MT_AFD = new Entry[NUMERO_ESTADOS][NUMERO_CARACTERES];
-	private final HashMap<String, String> tablaPR = new HashMap<>();
 	private BufferedReader br;
 	private BufferedWriter bwTokens;
 
@@ -71,6 +74,8 @@ public class AnalizadorLexico {
 	private final int ENTERO_OVERFLOW = 37;
 	private final int CADENA_OVERFLOW = 38;
 
+	private final int DOBLE_DECLARACION = 39;
+
 	private int estado; // estado actual
 	private int car; // caracter leido
 
@@ -88,14 +93,14 @@ public class AnalizadorLexico {
 
     /**********************************************************************************************************************************/
 
-    public AnalizadorLexico(String rutaEntrada, String rutaTokens, String rutaTS) throws IOException {
+    public ALexico(String rutaEntrada, String rutaTokens, TablaSimbolos ts) throws IOException {
         br = new BufferedReader(new FileReader(rutaEntrada));
 		bwTokens = new BufferedWriter(new FileWriter(rutaTokens));
+		this.ts = ts;
 
         car = br.read();    // El caracter de entrada para el estado 0
 
         inicializarTablaTransicion();
-		inicializarTablaPR();
     }
     
     public String nextToken() throws IOException {
@@ -153,15 +158,9 @@ public class AnalizadorLexico {
 
 	public int getLinea() { return tokenLine; }
 
-	public void imprimirTablaGlobal() throws IOException {
-		AnalizadorSintactico.gestor.write(TS_Gestor.Tabla.GLOBAL);
-	}
-
 	public void cerrarRecursos() throws IOException {
 		br.close();
 		bwTokens.close();
-		AnalizadorSintactico.gestor.destroy(TS_Gestor.Tabla.GLOBAL);
-		AnalizadorSintactico.gestor.destroy(TS_Gestor.Tabla.PALRES);
 	}
 
     /**********************************************************************************************************************************/
@@ -210,16 +209,27 @@ public class AnalizadorLexico {
     }
 
     private void G() {
-        String value = tablaPR.get(lexema);
+        String value = ts.buscaEnTPR(lexema);
         if (value != null) {
             token = "<" + value + ",>";
-        } else {
-			int id = AnalizadorSintactico.gestor.getEntradaTS(lexema);
-			if (id == 0) {
-				id = AnalizadorSintactico.gestor.addEntradaTSGlobal(lexema);
-			}
-            token = "<ID," + id + ">";
-        }
+			return;
+		}
+	
+		// Estar aqui -> lexema es un identificador
+		int id_pos;
+		if(ts.zonaDecl) {
+			id_pos = ts.buscaEnTSA(lexema);
+			if (id_pos != 0)
+				tratarError(DOBLE_DECLARACION);
+			else
+				ts.insertaEnTSA(lexema);
+		} else {
+			id_pos = ts.buscaEnTSA(lexema);
+			if (id_pos == 0)
+				ts.insertaEnTSA(lexema);
+		}
+		
+		token = "<ID," + id_pos + ">";
     }
 
     private void G1() { token = "<masIgual,>"; }
@@ -396,6 +406,11 @@ public class AnalizadorLexico {
 				System.out.println("Motivo: cadena demasiado larga.");
 				L();
 			}
+			case DOBLE_DECLARACION -> {
+				System.out.printf("[Error semántico] línea %d\n", tokenLine);
+				System.out.printf("Leyendo: \"%s\"\n", lexema);
+				System.out.println("Motivo: doble declaracion.");
+			}
 			default -> System.out.println("Error léxico no cubierto por el gestor de errores");
 		}
 
@@ -495,20 +510,5 @@ public class AnalizadorLexico {
 			MT_AFD[9][i] = new AbstractMap.SimpleEntry<>(null, Arrays.asList(MISSING_DIGITO));
 		}
 		MT_AFD[9][DIGITO] = new AbstractMap.SimpleEntry<>(4, Arrays.asList(S_PP, L));
-	}
-
-    private void inicializarTablaPR() {
-		tablaPR.put("boolean", "tipoBoolean");
-		tablaPR.put("float", "tipoFloat");
-		tablaPR.put("for", "for");
-		tablaPR.put("function", "function");
-		tablaPR.put("if", "if");
-		tablaPR.put("int", "tipoInt");
-		tablaPR.put("let", "let");
-		tablaPR.put("read", "read");
-		tablaPR.put("return", "return");
-		tablaPR.put("string", "tipoString");
-		tablaPR.put("void", "void");
-		tablaPR.put("write", "write");
 	}
 }

@@ -317,14 +317,14 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==4) {
-				System.out.println("Se est� intentando definir un atributo ya definido.");
+				System.out.println("Se esta intentando definir un atributo ya definido.");
 			}
 			if(res==11) {
-				System.out.println("Se est� intentando definir un atributo con un nombre que ya est� asignado "
+				System.out.println("Se esta intentando definir un atributo con un nombre que ya esta asignado "
 						+ "a otro atributo.");
 			}
 			if(res==13) {
-				System.out.println("El nombre del atributo no es v�lido.");
+				System.out.println("El nombre del atributo no es valido.");
 			}
 		}
 		return res;
@@ -342,8 +342,8 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando a�adir una entrada en la tabla de palabras reservadas "
-						+ "cuando la tabla no existe o cuando la palabra reservada ya est� en la tabla de"
+				System.out.println("Se esta intentando añadir una entrada en la tabla de palabras reservadas "
+						+ "cuando la tabla no existe o cuando la palabra reservada ya esta en la tabla de"
 						+ "palabras reservadas.");
 			}
 			return 0;
@@ -362,8 +362,8 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando a�adir una entrada en la tabla global cuando la tabla "
-						+ "no existe o cuando el identificador ya est� en la tabla global.");
+				System.out.println("Se esta intentando añadir una entrada en la tabla global cuando la tabla "
+						+ "no existe o cuando el identificador ya esta en la tabla global.");
 			}
 			return 0;
 		}
@@ -381,8 +381,8 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando a�adir una entrada en la tabla local cuando la tabla "
-						+ "no existe o cuando el identificador ya est� en la tabla local.");
+				System.out.println("Se esta intentando añadir una entrada en la tabla local cuando la tabla "
+						+ "no existe o cuando el identificador ya esta en la tabla local.");
 			}
 			return 0;
 		}
@@ -400,7 +400,7 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando obtener una entrada de la tabla de palabras reservadas "
+				System.out.println("Se esta intentando obtener una entrada de la tabla de palabras reservadas "
 						+ "cuando la tabla no existe.");
 			}
 			return 0;
@@ -419,7 +419,7 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando obtener una entrada de la tabla global cuando la tabla "
+				System.out.println("Se esta intentando obtener una entrada de la tabla global cuando la tabla "
 						+ "no existe.");
 			}
 			return 0;
@@ -438,7 +438,7 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando obtener una entrada de la tabla local cuando la tabla "
+				System.out.println("Se esta intentando obtener una entrada de la tabla local cuando la tabla "
 						+ "no existe.");
 			}
 			return 0;
@@ -468,7 +468,7 @@ public class TS_Gestor {
 		}
 		else {
 			if(debug) {
-				System.out.println("Se est� intentando obtener una entrada de cualquier tabla cuando la tabla"
+				System.out.println("Se esta intentando obtener una entrada de cualquier tabla cuando la tabla"
 						+ "global no existe.");
 			}
 			return 0;
@@ -493,7 +493,7 @@ public class TS_Gestor {
 			if(global!=null) {
 				res=global.setTipo(pos,tipo_id);
 				if(tipo_id.equals("entero")||tipo_id.equals("cadena")||tipo_id.equals("real")||
-						tipo_id.equals("l�gico")||tipo_id.equals("puntero")||tipo_id.equals("vector")) {
+						tipo_id.equals("logico")||tipo_id.equals("puntero")||tipo_id.equals("vector")) {
 					Iterator<Entry<String,Entry<DescripcionAtributo,TipoDatoAtributo>>> it=atributos_def.entrySet().iterator();
 					while(it.hasNext()) {
 						Entry<String,Entry<DescripcionAtributo,TipoDatoAtributo>> atrb=it.next();
@@ -525,13 +525,13 @@ public class TS_Gestor {
 		}
 		else { //Est� en la tabla local
 			if(local!=null) {
-				if(tipo_id.equals("funci�n")) {
+				if(tipo_id.equals("funcion")) {
 					res=12;
 				}
 				else {
 					local.setTipo(pos,tipo_id);
 					if(tipo_id.equals("entero")||tipo_id.equals("cadena")||tipo_id.equals("real")||
-							tipo_id.equals("l�gico")||tipo_id.equals("puntero")||tipo_id.equals("vector")) {
+							tipo_id.equals("logico")||tipo_id.equals("puntero")||tipo_id.equals("vector")) {
 						Iterator<Entry<String,Entry<DescripcionAtributo,TipoDatoAtributo>>> it=atributos_def.entrySet().iterator();
 						while(it.hasNext()) {
 							Entry<String,Entry<DescripcionAtributo,TipoDatoAtributo>> atrb=it.next();
@@ -550,19 +550,19 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==12) {
-				System.out.println("Esta librer�a no permite lenguajes con anidaci�n de funciones.");
+				System.out.println("Esta libreria no permite lenguajes con anidacion de funciones.");
 			}
 			if(res==10) {
 				System.out.println("La tabla a la que se quiere acceder no existe.");
 			}
 			if(res==5) {
-				System.out.println("La posici�n no es correcta.");
+				System.out.println("La posicion no es correcta.");
 			}
 			if(res==6) {
 				System.out.println("El tipo no es correcto.");
 			}
 			if(res==7) {
-				System.out.println("La entrada ya ten�a un tipo asignado.");
+				System.out.println("La entrada ya tenia un tipo asignado.");
 			}
 		}
 		return res;
@@ -597,7 +597,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==null) {
-				System.out.println("La posici�n no es correcta.");
+				System.out.println("La posicion no es correcta.");
 			}
 		}
 		return res;
@@ -635,7 +635,7 @@ public class TS_Gestor {
 				System.out.println("La tabla a la que se quiere acceder no existe.");
 			}
 			if(res==5) {
-				System.out.println("La posici�n no es correcta.");
+				System.out.println("La posicion no es correcta.");
 			}
 			if(res==9) {
 				System.out.println("El atributo " + atr + " no existe.");
@@ -645,7 +645,7 @@ public class TS_Gestor {
 						+ "entero.");
 			}
 			if(res==7) {
-				System.out.println("El atributo " + atr + " ya ten�a un valor asignado.");
+				System.out.println("El atributo " + atr + " ya tenia un valor asignado.");
 			}
 		}
 		return res;
@@ -679,7 +679,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==-1) {
-				System.out.println("Ha habido alg�n error con la posici�n o con el atributo.");
+				System.out.println("Ha habido algun error con la posicion o con el atributo.");
 			}
 		}
 		return res;
@@ -717,7 +717,7 @@ public class TS_Gestor {
 				System.out.println("La tabla a la que se quiere acceder no existe.");
 			}
 			if(res==5) {
-				System.out.println("La posici�n no es correcta.");
+				System.out.println("La posicion no es correcta.");
 			}
 			if(res==9) {
 				System.out.println("El atributo " + atr + " no existe.");
@@ -727,7 +727,7 @@ public class TS_Gestor {
 						+ "cadena.");
 			}
 			if(res==7) {
-				System.out.println("El atributo " + atr + " ya ten�a un valor asignado.");
+				System.out.println("El atributo " + atr + " ya tenia un valor asignado.");
 			}
 		}
 		return res;
@@ -761,7 +761,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==null) {
-				System.out.println("Ha habido alg�n error con la posici�n o con el atributo.");
+				System.out.println("Ha habido algun error con la posicion o con el atributo.");
 			}
 		}
 		return res;
@@ -799,7 +799,7 @@ public class TS_Gestor {
 				System.out.println("La tabla a la que se quiere acceder no existe.");
 			}
 			if(res==5) {
-				System.out.println("La posici�n no es correcta.");
+				System.out.println("La posicion no es correcta.");
 			}
 			if(res==9) {
 				System.out.println("El atributo " + atr + " no existe.");
@@ -809,7 +809,7 @@ public class TS_Gestor {
 						+ "lista.");
 			}
 			if(res==7) {
-				System.out.println("El atributo " + atr + " ya ten�a un valor asignado.");
+				System.out.println("El atributo " + atr + " ya tenia un valor asignado.");
 			}
 		}
 		return res;
@@ -843,7 +843,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==null) {
-				System.out.println("Ha habido alg�n error con la posici�n o con el atributo.");
+				System.out.println("Ha habido algun error con la posicion o con el atributo.");
 			}
 		}
 		return res;
@@ -882,7 +882,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==10) {
-				System.out.println("Se est� intentando mostrar una tabla que no existe.");
+				System.out.println("Se esta intentando mostrar una tabla que no existe.");
 			}
 		}
 		return res;
@@ -921,7 +921,7 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==10) {
-				System.out.println("Se est� intentando escribir una tabla que no existe.");
+				System.out.println("Se esta intentando escribir una tabla que no existe.");
 			}
 		}
 		if(primera_escritura&&res==0) {
@@ -978,14 +978,14 @@ public class TS_Gestor {
 		}
 		if(debug) {
 			if(res==10) {
-				System.out.println("Se est� intentando destruir una tabla que no existe.");
+				System.out.println("Se esta intentando destruir una tabla que no existe.");
 			}
 			if(res==15) {
-				System.out.println("Se est� intentando destruir la tabla global sin haber destruido la tabla"
+				System.out.println("Se esta intentando destruir la tabla global sin haber destruido la tabla"
 						+ "local.");
 			}
 			if(res==16) {
-				System.out.println("Se est� intentando destruir la tabla de palabras reservadas sin haber destruido"
+				System.out.println("Se esta intentando destruir la tabla de palabras reservadas sin haber destruido"
 						+ " la tabla local.");
 			}
 		}
