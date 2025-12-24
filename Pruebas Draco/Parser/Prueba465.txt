@@ -1,0 +1,68 @@
+let int    uno;
+let int    UNO;
+let 
+boolean 
+booleano
+;let string s;	
+let
+float
+flot;
+let
+float
+flat;function int Factorial  (int n)
+{
+	let  int i;
+	let int factorial ;
+	for (; flot < flat; i = i %3)
+	{
+		factorial = factorial%i;
+	}
+	return factorial;
+}
+s = 'Introduce un entero:';	
+
+write 'Factorial !';
+write s;
+let boolean bool;
+let float flota;
+
+ num=33;
+
+read num;
+read flota;
+function void output(string fff){write fff;}
+let int  For;
+let int  functional;
+let int  While;	
+
+function void print (string s, string msg, int print)	
+{
+	write (s); write msg; write(print);
+	return;	
+}
+let boolean bo ;
+function  string cadena(boolean logic)
+{
+	for (UNO=1;!logic;UNO=uno)
+	{
+		print (s, s, 3333);
+		if (bo)	return s;
+	}
+}
+flota();
+let int aaaaa ;
+let  int iiiii;
+
+bo = cadena(s);
+
+if (bo) aaaaaa=3;
+
+if () aaaaa=4;
+
+
+
+
+uno=1;UNO=uno;
+if (num < UNO)		write ('No existe el factorial!');
+print (cadena (booleano), 'recursivo es: ', Factorial (num));
+

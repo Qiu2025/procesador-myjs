@@ -12,11 +12,8 @@ public class Procesador {
 		TablaSimbolos ts = new TablaSimbolos(rutaTS);
 		ts.init();
 
-		ASSGemini aSint = new ASSGemini(rutaEntrada, rutaTokens, rutaParse, ts);
+		ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
 		aSint.start();
-
-		// ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
-		// aSint.start();
 
 		ts.print();
 		ts.destroyAll();
