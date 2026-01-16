@@ -217,16 +217,18 @@ public class ALexico {
 	
 		// Estar aqui -> lexema es un identificador
 		int id_pos;
-		if(ts.zonaDecl) {
+		if(ASintacticoSemantico.zonaDecl) {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos != 0)
 				tratarError(DOBLE_DECLARACION);
 			else
-				ts.insertaEnTSA(lexema);
+				ts.insertaLexemaEnTSA(lexema);
 		} else {
 			id_pos = ts.buscaEnTSA(lexema);
-			if (id_pos == 0)
-				ts.insertaEnTSA(lexema);
+			if (id_pos == 0) {
+				int pos = ts.insertaLexemaEnTSA(lexema);
+				ts.insertaTipo(pos, ASintacticoSemantico.T_ENTERO);
+			}
 		}
 		
 		token = "<ID," + id_pos + ">";
