@@ -16,7 +16,7 @@ public class ASintacticoSemantico {
 	// Analizador semantico
 	private int despG;	// desplazamiento global
 	private int despL;	// desplazamiento local
-	private boolean zonaDecl;	// zona declaracion
+	public boolean zonaDecl;
 
 	public static final String T_ENTERO   = "entero";
 	public static final String T_REAL     = "real";
@@ -25,16 +25,7 @@ public class ASintacticoSemantico {
 	public static final String T_VACIO    = "vacio";
 	public static final String T_FUNCION  = "funcion";
 
-	// Atributos de TS
-	public static final String ATR_DESPL        = "Despl";
-	public static final String ATR_NUM_PARAM    = "NumParam";
-	public static final String ATR_TIPO_PARAM   = "TipoParam";
-	public static final String ATR_MODO_PARAM   = "ModoParam";
-	public static final String ATR_TIPO_RETORNO = "TipoRetorno";
-	public static final String ATR_ETIQ_FUNCION = "EtiqFuncion";
-	public static final String ATR_PARAM        = "Param";
-
-	// ===== Claves de atributos semánticos (no terminales) =====
+	// Claves de atributos semánticos (no terminales)
 	public static final String TIPO        = "tipo";
 	public static final String TIPO_IZQ    = "tipoIzq";
 	public static final String TIPO_RET    = "tipoRet";
@@ -61,7 +52,6 @@ public class ASintacticoSemantico {
 		// TSL = false;
 		despL = 0;
 		zonaDecl = false;
-
 
 		token = aLex.nextToken();
         formatearToken();
@@ -168,43 +158,100 @@ public class ASintacticoSemantico {
 
     /**********************************************************************************************************************************/
 
-	// E → R { E_p.tipoIzq := R.tipo } E_p { E.tipo := E_p.tipo }
-	private HashMap<String,Object> E() throws IOException {
+	/* Regla relacionada con este NO TERMINAL:
+			E → R { E_p.tipoIzq := R.tipo } E_p { E.tipo := E_p.tipo }
+	 */
+	// Sintetizado: E.tipo
+	private String E() throws IOException {
 		bwParse.write(" 1");
+		String r = R();	// R.tipo
+		String ret = E_p(r);	// E.tipo
 
-		HashMap<String,Object> r = R();
-		return E_p((String) r.get(TIPO));
+		return ret;
 	}
 
-	private HashMap<String,Object> E_p(String tipoIzq) throws IOException {
-		HashMap<String, Object> ep1 = new HashMap<>();
+	/*	Reglas relacionadas con este NO TERMINAL:
+			1. E_p1 → < R 	{ if (E_p1.tipoIzq ∉ {entero, real} || R.tipo != E_p1.tipoIzq) 		then E_p1.tipo := error(“Tipos de operandos de ‘<’ incorrectos”)
+							  else 																E_p2.tipoIzq := lógico } 
+					E_p2 	{ E_p1.tipo := E_p2.tipo }
+			
+			2. E_p → λ { E_p.tipo := E_p.tipoIzq }
+	*/
+	// Sintetizado: E_p.tipo
+	// Heredado: E_p.tipoIzq
+	private String E_p(String tipoIzq) throws IOException {
+		String ret = null;
+
 		if (token.equals("<")) {
 			bwParse.write(" 2");
 			equipara("<");
-			R();
-			E_p(null);
+			String r = R();	// R.tipo
+
+			if ( (!tipoIzq.equals(T_ENTERO) && !tipoIzq.equals(T_REAL)) || !r.equals(tipoIzq) ) {
+				errorSemantico("Tipos de operandos de '<' incorrectos");
+			} else {
+				ret = E_p(T_LOGICO);
+			}
 		} else if (compararTokens(token, new String[] {")", ",", ";"})) {
 			bwParse.write(" 3");
+			ret = tipoIzq;
 		} else {
             errorSintactico("'<' ')' ',' ';'");
         }
-		return ep1;
+		
+		return ret;
 	}
 
-	private HashMap<String, Object> R() throws IOException {
-		HashMap<String,Object> r1 = new HashMap<>();
+	/* Regla relacionada con este NO TERMINAL:
+			R → U R_p 	{
+							if R_p.tipo = vacio then
+								R.tipo := U.tipo
+							else if U.tipo ∉ {entero, real} then
+								error("Primer operando de '%' debe ser entero o real")
+							else if U.tipo ≠ R_p.tipo then
+								error("Hay operandos de tipos distintos en '%'")
+							else
+								R.tipo := U.tipo
+						}
+	*/
+	// Sintetizado: R.tipo
+	private String R() throws IOException {
 		bwParse.write(" 4");
-		U();
-		R_p();
-		return r1;
+		String u = U();	// U.tipo
+		String r_p = R_p();	// R_p.tipo
+
+		if (r_p.equals(T_VACIO)) {	// Si no hay operacion de modulo
+			return u;
+		} else if (!u.equals(T_ENTERO) && !u.equals(T_REAL)) {	// Si el primer operando no es valido
+			errorSemantico("Primer operando de '%' debe ser entero o real");
+		} else if (!u.equals(r_p)) {	// Si el segundo operando no es valido
+			errorSemantico("Hay operandos de tipos distintos en '%'");
+		}
+
+		// Los operandos son validos, tanto u.tipo como r_p.tipo son validos
+		return u;
 	}
 
-	private void R_p() throws IOException {
+	/* Reglas relacionadas con este NO TERMINAL:
+			1. R_p → % U R_p { R_p.tipo := 		if U.tipo ∉ {entero, real} 		then error (“El segundo operando de ‘%’ deber un entero o real”) 
+												else 							U.tipo}
+			
+			2. R_p → λ { R_p.tipo := vacio }
+	*/
+	private String R_p() throws IOException {
+		String ret = null;
+
 		if (token.equals("%")) {
 			bwParse.write(" 5");
 			equipara("%");
-			U();
-			R_p();
+			String u = U();	// U.tipo
+			String r_p = R_p();	// R_p.tipo
+
+			if (!u.equals(T_ENTERO) || !u.equals(T_REAL)) {
+				errorSemantico("El segundo operando de '%' debe ser un entero o real");
+			} else {
+				ret = u;
+			}
 		} else if (compararTokens(token, new String[] { ")", ",", ";", "<" })) {
 			bwParse.write(" 6");
 		} else {
@@ -503,7 +550,7 @@ public class ASintacticoSemantico {
 			equipara("ID");
 			HashMap<String, Object> k2 = K();
 			ts.setTipo(id, (String)t.get(TIPO));
-			ts.setValorAtributoEnt(id, ATR_DESPL, ts.existeTSL ? despL : despG);
+			ts.setValorAtributoEnt(id, TablaSimbolos.ATR_DESPL, ts.existeTSL ? despL : despG);
 			if(ts.existeTSL) despL+=(Integer)t.get(TAMANO); else despG+=(Integer)t.get(TAMANO);
 			k1.put(N, (Integer)k2.get(N)+1);
 			List<String> tipos = Arrays.asList((String[])k2.get(TIPO));
