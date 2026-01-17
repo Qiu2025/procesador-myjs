@@ -222,7 +222,7 @@ public class ALexico {
 	
 		// Estar aqui -> lexema es un identificador
 		int id_pos;
-		if(ASintacticoSemantico.zonaDecl) {
+		if(ts.zonaDecl) {
 			id_pos = ts.buscaEnTSA(lexema);
 			int aux = ts.existeTSL ? -1 : 1;
 			if (id_pos != 0 && aux * id_pos > 0)
@@ -233,7 +233,7 @@ public class ALexico {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos == 0) {
 				id_pos = ts.insertaLexemaEnTSA(lexema);
-				ts.insertaTipo(id_pos, ASintacticoSemantico.T_ENTERO);
+				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 2);
 			}
 		}
 		

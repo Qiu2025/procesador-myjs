@@ -1,13 +1,19 @@
 
-/* Clase que internamente gestiona la clase TS_Gestor de la libreria de TS 
- * de la pagina de documentacion de la asignatura. El objetivo es crear los metodos
- * que realicen exactamente lo que necesitemos, añadiendo una capa mas de abstraccion */
+/** 
+ * Clase que internamente gestiona la clase TS_Gestor de la libreria de TS 
+ * de la pagina de documentacion de la asignatura. El objetivo es crear una capa
+ * mas de abstraccion para dejar el codigo limpio en los otros archivos.
+ */
 public class TablaSimbolos {
     
     private TS_Gestor gestorTS;
-	private int contadorEtiqueta = 1;
 
+	// Relacionados con Analizador Semantico
 	public boolean existeTSL;
+	public int despG;	// desplazamiento global
+	public int despL;	// desplazamiento local
+	public boolean zonaDecl;
+	private int contadorEtiqueta = 1;
 
 	// Atributos de TS
 	public static final String ATR_DESPL        = "Despl";
@@ -49,6 +55,11 @@ public class TablaSimbolos {
 		for (int i = 0; i < nombres.length; i++) {
 			gestorTS.createAtributo(nombres[i], descripcion[i], tipos[i]);
 		}
+
+		despG = 0;
+		despL = 0;
+		zonaDecl = false;
+		gestorTS.createTSGlobal();
 	}
 
 	/**********************************************************************************************************************************/
@@ -56,13 +67,8 @@ public class TablaSimbolos {
 	public void createTSLocal() {
 		gestorTS.createTSLocal();
 		existeTSL = true;
+		despL = 0;
 	}
-
-	public void createTSGlobal() {
-		gestorTS.createTSGlobal();
-	}
-
-	/**********************************************************************************************************************************/
 
 	public void destroyTSLocal() {
 		gestorTS.destroy(TS_Gestor.Tabla.LOCAL);
@@ -75,8 +81,6 @@ public class TablaSimbolos {
 		gestorTS.destroy(TS_Gestor.Tabla.PALRES);
 		existeTSL = false;
     }
-
-	/**********************************************************************************************************************************/
 
     public void write(int tabla) {
 		if (tabla == 1) {
@@ -129,31 +133,26 @@ public class TablaSimbolos {
 		return pos;
 	}
 
-	public int insertaTipo(int pos, String tipo) {
-		// Insertar el tipo
+	public int insertaAtributosVariable(int pos, String tipo, int tamano) {
 		int res = gestorTS.setTipo(pos, tipo);
 
-		// Actualizar desplazamiento
 		if (existeTSL) {
-			gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, ASintacticoSemantico.despL);
-			ASintacticoSemantico.despL += getTamanoTipo(tipo);
+			res += gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, despL);
+			despL += tamano;
 		} else {
-			gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, ASintacticoSemantico.despG);
-			ASintacticoSemantico.despG += getTamanoTipo(tipo);
+			res += gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, despG);
+			despG += tamano;
 		}
 
 		return res;
 	}
 
-	private int getTamanoTipo(String tipo) {
-		int res = -1;
-		switch (tipo) {
-			case ASintacticoSemantico.T_ENTERO -> res = 1;
-			case ASintacticoSemantico.T_REAL -> res = 2;
-			case ASintacticoSemantico.T_LOGICO -> res = 1;
-			case ASintacticoSemantico.T_CADENA -> res = 64;
-			default -> throw new MiExcepcion("TablaSimbolos.getTamanoTipo(): Tipo no valido");
-		}
+	public int insertaAtributosFuncion(int pos, int numParams, String[] params, String tipoRet) {
+		int res = gestorTS.setTipo(pos, ASintacticoSemantico.T_FUNCION);
+		res += gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_NUM_PARAM, numParams);
+		res += gestorTS.setValorAtributoLista(pos, TablaSimbolos.ATR_TIPO_PARAM, params);
+		res += gestorTS.setValorAtributoCad(pos, TablaSimbolos.ATR_TIPO_RETORNO, tipoRet);
+		res += gestorTS.setValorAtributoCad(pos, TablaSimbolos.ATR_ETIQ_FUNCION, nuevaEtiqueta());
 
 		return res;
 	}
@@ -187,35 +186,5 @@ public class TablaSimbolos {
 
 	public String nuevaEtiqueta() {
 		return "et" + contadorEtiqueta++;
-	}
-
-	public int getValorAtributoEnt(int pos, String atr) {
-		return gestorTS.getValorAtributoEnt(pos, atr);
-	}
-
-	public String getValorAtributoCad(int pos, String atr) {
-		return gestorTS.getValorAtributoCad(pos, atr);
-	}
-
-	public String[] getValorAtributoLista(int pos, String atr) {
-		return gestorTS.getValorAtributoLista(pos, atr);
-	}
-
-	/**********************************************************************************************************************************/
-
-	public int setTipo(int pos, String tipo_id) {
-		return gestorTS.setTipo(pos, tipo_id);
-	}
-
-	public int setValorAtributoEnt(int pos, String atr, int valor) {
-		return gestorTS.setValorAtributoEnt(pos, atr, valor);
-	}
-
-	public int setValorAtributoCad(int pos, String atr, String valor) {
-		return gestorTS.setValorAtributoCad(pos, atr, valor);
-	}
-
-	public int setValorAtributoLista(int pos, String atr, String[] valor) {
-		return gestorTS.setValorAtributoLista(pos, atr, valor);
 	}
 }

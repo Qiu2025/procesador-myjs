@@ -13,11 +13,6 @@ public class ASintacticoSemantico {
     private ALexico aLex;
     private BufferedWriter bwParse;
 
-	// Analizador semantico
-	public static int despG;	// desplazamiento global
-	public static int despL;	// desplazamiento local
-	public static boolean zonaDecl;
-
 	public static final String T_ENTERO   = "entero";
 	public static final String T_REAL     = "real";
 	public static final String T_LOGICO   = "logico";
@@ -46,19 +41,11 @@ public class ASintacticoSemantico {
     }
     
 	public void start() throws IOException {
-		ts.createTSGlobal();
-		despG = 0;
-		despL = 0;
-		zonaDecl = false;
-
 		token = aLex.nextToken();
         formatearToken();
 		P();
 		if (!token.equals("$")) {
-			System.out.println("[Error sintáctico] línea " + aLex.getLinea());
-			System.out.println("Fin de archivo no encontrado");
-			System.out.println("Se esperaba: $");
-			System.out.println("Se encontró: " + token);
+			errorSintactico("fin de archivo '$'");
 		}
 
         aLex.cerrarRecursos();
@@ -90,6 +77,7 @@ public class ASintacticoSemantico {
 		}
 		return res;
 	}
+
 
 	/**
 	 * Dados dos listas de tipos, compara si coinciden
@@ -165,9 +153,9 @@ public class ASintacticoSemantico {
 							"\n------------------------------------------------------------------------------");
     }
 
-	private void errorSemantico(String mensaje) {
+	private void errorSemantico(String motivo) {
 		System.out.println("[Error semántico] línea " + aLex.getLinea());
-		System.out.println(mensaje);
+		System.out.println("Motivo: " + motivo);
 
 		System.out.println("------------------------------------------------------------------------------");
 		throw new MiExcepcion("Análisis abortado por error semántico" + 
@@ -200,7 +188,7 @@ public class ASintacticoSemantico {
 			String r = R();	// R.tipo
 
 			if ( (!tipoIzq.equals(T_ENTERO) && !tipoIzq.equals(T_REAL)) || !r.equals(tipoIzq) ) {
-				errorSemantico("Tipos de operandos de '<' incorrectos");
+				errorSemantico("tipos de operandos de '<' incorrectos");
 			} else {
 				String e_p = E_p(T_LOGICO);	// E_p2.tipo
 				ret = e_p;
@@ -224,9 +212,9 @@ public class ASintacticoSemantico {
 		if (r_p.equals(T_VACIO)) {	// Si no hay operacion de modulo
 			return u;
 		} else if (!u.equals(T_ENTERO) && !u.equals(T_REAL)) {	// Si el primer operando no es valido
-			errorSemantico("Primer operando de '%' debe ser entero o real");
+			errorSemantico("primer operando de '%' debe ser entero o real");
 		} else if (!u.equals(r_p)) {	// Si el segundo operando no es valido
-			errorSemantico("Hay operandos de tipos distintos en '%'");
+			errorSemantico("hay operandos de tipos distintos en '%'");
 		}
 
 		// Los operandos son validos, tanto u.tipo como r_p.tipo son validos
@@ -244,11 +232,11 @@ public class ASintacticoSemantico {
 			String r_p = R_p();	// R_p.tipo
 
 			if (!u.equals(T_ENTERO) && !u.equals(T_REAL)) {
-				errorSemantico("El operando de '%' debe ser entero o real");
+				errorSemantico("el operando de '%' debe ser entero o real");
 			} else if (r_p.equals(T_VACIO)) {
 				ret = u;
 			} else if (!u.equals(r_p)) {
-				errorSemantico("Hay operandos de tipos distintos en '%'");
+				errorSemantico("hay operandos de tipos distintos en '%'");
 			} else {
 				ret = u;
 			}
@@ -272,7 +260,7 @@ public class ASintacticoSemantico {
 			String v = V();	// V.tipo
 
 			if (!v.equals(T_LOGICO)) {
-				errorSemantico("El operando de '!' debe ser un logico");
+				errorSemantico("el operando de '!' debe ser un logico");
 			} else {
 				ret = T_LOGICO;
 			}
@@ -306,10 +294,10 @@ public class ASintacticoSemantico {
 					if (compararTipos(args, ts.buscaParam(copy_id_pos))) {
 						ret = ts.buscaTipoRet(copy_id_pos);
 					} else {
-						errorSemantico("Parámetros incorrectos");
+						errorSemantico("llamada a función con parámetros incorrectos");
 					}
 				} else {
-					errorSemantico("Función no declarada");
+					errorSemantico("función no declarada");
 				}
 			} else {
 				ret = ts.buscaTipo(copy_id_pos);
@@ -384,19 +372,26 @@ public class ASintacticoSemantico {
 			String s_p_tipo = (String) s_p.get(TIPO);
 			boolean s_p_llamaFunc = (boolean) s_p.get(LLAMAFUNC);
 			if (s_p_llamaFunc) {	// es una llamada a funcion
-				String[] args = s_p_tipo.equals(T_VACIO) ? new String[0] : s_p_tipo.split(" x ");
-				if (compararTipos(args, ts.buscaParam(copy_id_pos))) {
-					ret.put(TIPO, T_OK);
-					ret.put(TIPO_RET, T_VACIO);
+				
+				String tipo = ts.buscaTipo(copy_id_pos);
+				if (tipo.equals(T_FUNCION)) {
+					String[] args = s_p_tipo.equals(T_VACIO) ? new String[0] : s_p_tipo.split(" x ");
+					if (compararTipos(args, ts.buscaParam(copy_id_pos))) {
+						ret.put(TIPO, T_OK);
+						ret.put(TIPO_RET, T_VACIO);
+					} else {
+						errorSemantico("llamada a función con parámetros incorrectos");
+					}
 				} else {
-					errorSemantico("Parámetros incorrectos");
+					errorSemantico("se intenta llamar a una variable '" + tipo + "' como si fuera una función");
 				}
+
 			} else {	// es una asignacion o asignacion con suma
 				if (s_p_tipo != null && s_p_tipo.equals(ts.buscaTipo(copy_id_pos))) {
 					ret.put(TIPO, T_OK);
 					ret.put(TIPO_RET, T_VACIO);
 				} else {
-					errorSemantico("Tipos incompatibles en asignación");
+					errorSemantico("tipos incompatibles en asignación");
 				}
 			}
 		} else if (token.equals("write")) {
@@ -408,7 +403,7 @@ public class ASintacticoSemantico {
 			if (e.equals(T_ENTERO) || e.equals(T_REAL) || e.equals(T_CADENA)) {
 				ret.put(TIPO, T_OK);
 			} else {
-				errorSemantico("La expresión de 'write' debe ser entero, real o cadena");
+				errorSemantico("la expresión de 'write' debe ser entero, real o cadena");
 			}
 			ret.put(TIPO_RET, T_VACIO);
 		} else if (token.equals("read")) {
@@ -420,7 +415,7 @@ public class ASintacticoSemantico {
 
 			String tipo = ts.buscaTipo(copy_id_pos);
 			if (tipo != null && !tipo.equals(T_ENTERO) && !tipo.equals(T_REAL) && !tipo.equals(T_CADENA)) {
-				errorSemantico("Identificador del read debe ser entero, real o cadena");
+				errorSemantico("identificador del read debe ser entero, real o cadena");
 			} else {
 				ret.put(TIPO, T_OK);
 				ret.put(TIPO_RET, T_VACIO);
@@ -431,7 +426,7 @@ public class ASintacticoSemantico {
 			String x = X();
 			equipara(";");
 
-			if (!funcion) errorSemantico("Return debe ir dentro de una funcion");
+			if (!funcion) errorSemantico("return debe ir dentro de una funcion");
 			ret.put(TIPO, T_OK);
 			ret.put(TIPO_RET, x);
 		} else {
@@ -563,7 +558,7 @@ public class ASintacticoSemantico {
 			HashMap<String, Object> s = S(function);   // S.tipo, S.tipoRet
 
 			if (!tE.equals(T_LOGICO)) {
-				errorSemantico("La condición del if debe ser de tipo lógico");
+				errorSemantico("la condición del if debe ser de tipo lógico");
 			}
 
 			b1.put(TIPO, s.get(TIPO));
@@ -573,22 +568,17 @@ public class ASintacticoSemantico {
 			bwParse.write(" 30");
 			equipara("let");
 
-			zonaDecl = true;
+			ts.zonaDecl = true;
 			HashMap<String, Object> t = T();  // T.tipo, T.tamano
 
 			int id = id_pos;
 			equipara("ID");
 
-			zonaDecl = false;
+			ts.zonaDecl = false;
 			
 			equipara(";");
 
-			// Declaración: tipo + desplazamiento
-			ts.setTipo(id, (String) t.get(TIPO));
-			ts.setValorAtributoEnt(id, TablaSimbolos.ATR_DESPL, ts.existeTSL ? despL : despG);
-			if (ts.existeTSL) despL += (Integer) t.get(TAMANO);
-			else             despG += (Integer) t.get(TAMANO);
-
+			ts.insertaAtributosVariable(id, (String)t.get(TIPO), (int)t.get(TAMANO));
 
 			b1.put(TIPO, T_OK);
 			b1.put(TIPO_RET, T_VACIO);
@@ -607,6 +597,11 @@ public class ASintacticoSemantico {
 			String y1 = Y();  // Y.tipo
 			equipara(";");
 			String tE = E();                  // E.tipo
+
+			if (!tE.equals(T_LOGICO)) {
+				errorSemantico("la condición del for debe ser de tipo lógico");
+			}
+
 			equipara(";");
 			String y2 = Y();  // Y.tipo
 
@@ -615,16 +610,9 @@ public class ASintacticoSemantico {
 			HashMap<String, Object> c = C(function); // C.tipo, C.tipoRet
 			equipara("}");
 
-			if (!tE.equals(T_LOGICO)) {
-				errorSemantico("La condición del for debe ser de tipo lógico");
-			}
-
 			if (y1.equals(T_OK) && y2.equals(T_OK) && c.get(TIPO).equals(T_OK)) {
 				b1.put(TIPO, T_OK);
-			} else {
-				errorSemantico("Error inalcanzable");
 			}
-
 			b1.put(TIPO_RET, c.get(TIPO_RET));
 
 		} else {
@@ -699,7 +687,7 @@ public class ASintacticoSemantico {
 			if (tipoExp.equals(tipoId)) {
 				return T_OK;
 			} else {
-				errorSemantico("Tipos incompatibles en asignación");
+				errorSemantico("tipos incompatibles en asignación");
 			}
 		}
 
@@ -707,6 +695,7 @@ public class ASintacticoSemantico {
 		return null; // inalcanzable, para que no se queje el compilador
 	}
 
+	// 
 	private String W_p() throws IOException {
 
 		if (token.equals("=")) {
@@ -730,36 +719,23 @@ public class ASintacticoSemantico {
 			bwParse.write(" 42");
 			equipara("function");
 
+			ts.zonaDecl = true;
 
-			zonaDecl = true;
-			
 			String hTipo = H();
-
 			int idFunc = id_pos;     // pos en TS del identificador de la función
 			equipara("ID");
 
 			ts.createTSLocal();
-			despL = 0;
 
 			equipara("(");
 
-			// A.n, A.tipo
-			HashMap<String, Object> a = A();
+			HashMap<String, Object> a = A();	// A.n, A.tipo
 
-			zonaDecl = false;
+			ts.zonaDecl = false;
 			
-			// AñadeTipo(idFunc, tipoFunction)
-			ts.setTipo(idFunc, T_FUNCION);
-			// AñadeNumParam(idFunc, A.n)
-			ts.setValorAtributoEnt(idFunc, TablaSimbolos.ATR_NUM_PARAM, (Integer)a.get(N));
-			// AñadeParam(idFunc, A.tipo)
 			String aTipo = (String) a.get(TIPO);
 			String[] params = aTipo.equals(T_VACIO) ? new String[0] : aTipo.split(" x ");
-			ts.setValorAtributoLista(idFunc, TablaSimbolos.ATR_TIPO_PARAM, params);
-			// AñadeTipoRet(idFunc, H.tipo)
-			ts.setValorAtributoCad(idFunc, TablaSimbolos.ATR_TIPO_RETORNO, hTipo);
-			// AñadeEtiq(idFunc, nuevaEtiq())
-			ts.setValorAtributoCad(idFunc, TablaSimbolos.ATR_ETIQ_FUNCION, ts.nuevaEtiqueta());
+			ts.insertaAtributosFuncion(idFunc, (Integer)a.get(N), params, hTipo);
 
 			equipara(")");
 			equipara("{");
@@ -771,7 +747,7 @@ public class ASintacticoSemantico {
 
 			// if C.tipoRet ≠ H.tipo then error
 			if (!hTipo.equals(c.get(TIPO_RET))) {
-				errorSemantico("Tipo de retorno incorrecto");
+				errorSemantico("tipo de retorno incorrecto");
 			}
 
 			// LiberaTabla(TSL)
@@ -783,6 +759,7 @@ public class ASintacticoSemantico {
 		}
 	}
 
+	// Sintetizado: H.tipo
 	private String H() throws IOException {
 		// H -> T
 		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
@@ -802,10 +779,10 @@ public class ASintacticoSemantico {
 		return null; // inalcanzable
 	}
 
+	// Sintetizado: A.n, A.tipo
 	private HashMap<String, Object> A() throws IOException {
 		HashMap<String, Object> a1 = new HashMap<>();
 
-		// A -> T ID K
 		if (compararTokens(token, new String[] { "boolean", "float", "int", "string" })) {
 			bwParse.write(" 45");
 
@@ -816,11 +793,7 @@ public class ASintacticoSemantico {
 
 			HashMap<String, Object> k = K();   // K.n, K.tipo
 
-			// Semántica: primer parámetro
-			ts.setTipo(id, (String) t.get(TIPO));
-			ts.setValorAtributoEnt(id, TablaSimbolos.ATR_DESPL, ts.existeTSL ? despL : despG);
-			if (ts.existeTSL) despL += (Integer) t.get(TAMANO);
-			else             despG += (Integer) t.get(TAMANO);
+			ts.insertaAtributosVariable(id, (String) t.get(TIPO), (int) t.get(TAMANO));
 
 			// A.n := K.n + 1
 			a1.put(N, (Integer) k.get(N) + 1);
@@ -850,6 +823,7 @@ public class ASintacticoSemantico {
 		return a1;
 	}
 
+	// Sintetizado: K.n, K.tipo
 	private HashMap<String, Object> K() throws IOException {
 		HashMap<String, Object> k1 = new HashMap<>();
 
@@ -864,11 +838,7 @@ public class ASintacticoSemantico {
 
 			HashMap<String, Object> k2 = K();  // K2.n, K2.tipo
 
-			// Semántica: parámetro actual
-			ts.setTipo(id, (String) t.get(TIPO));
-			ts.setValorAtributoEnt(id, TablaSimbolos.ATR_DESPL, ts.existeTSL ? despL : despG);
-			if (ts.existeTSL) despL += (Integer) t.get(TAMANO);
-			else             despG += (Integer) t.get(TAMANO);
+			ts.insertaAtributosVariable(id, (String)t.get(TIPO), (int)t.get(TAMANO));
 
 			// K1.n := K2.n + 1
 			k1.put(N, (Integer) k2.get(N) + 1);
@@ -895,6 +865,8 @@ public class ASintacticoSemantico {
 		return k1;
 	}
 
+	// Sintetizado: C.tipoRet, C.tipo
+	// Heredado: C.function
 	private HashMap<String,Object> C(boolean function) throws IOException {
 		HashMap<String, Object> c1 = new HashMap<>();
 
@@ -918,11 +890,11 @@ public class ASintacticoSemantico {
 			} else if (retC2.equals(T_VACIO)) {
 				c1.put(TIPO_RET, retB);
 			} else {
-				// Ambos tienne return
+				// Ambos tienen return
 				if (retB.equals(retC2)) {
 					c1.put(TIPO_RET, retB);
 				} else {
-					errorSemantico("Tipos de retorno incompatibles en el mismo bloque");
+					errorSemantico("tipos de retorno incompatibles en el mismo bloque");
 				}
 			}
 
