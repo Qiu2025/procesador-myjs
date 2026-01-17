@@ -31,24 +31,20 @@ public class TablaSimbolos {
 		for (String pr : palabrasReservadasEntrada) gestorTS.addEntradaTPalabrasReservadas(pr);
 
 		// Atributos
-		String[] nombres = {"Despl","NumParam","TipoParam","ModoParam","TipoRetorno","EtiqFuncion","Param"};
+		String[] nombres = {"Despl","NumParam","TipoParam","TipoRetorno","EtiqFuncion"};
 		TS_Gestor.DescripcionAtributo[] descripcion = {
 			TS_Gestor.DescripcionAtributo.DIR,
 			TS_Gestor.DescripcionAtributo.NUM_PARAM,
 			TS_Gestor.DescripcionAtributo.TIPO_PARAM,
-			TS_Gestor.DescripcionAtributo.MODO_PARAM,
 			TS_Gestor.DescripcionAtributo.TIPO_RET,
 			TS_Gestor.DescripcionAtributo.ETIQUETA,
-			TS_Gestor.DescripcionAtributo.PARAM,
 		};
 		TS_Gestor.TipoDatoAtributo[] tipos = {
 			TS_Gestor.TipoDatoAtributo.ENTERO,
 			TS_Gestor.TipoDatoAtributo.ENTERO,
 			TS_Gestor.TipoDatoAtributo.LISTA,
-			TS_Gestor.TipoDatoAtributo.LISTA,
 			TS_Gestor.TipoDatoAtributo.CADENA,
 			TS_Gestor.TipoDatoAtributo.CADENA,
-			TS_Gestor.TipoDatoAtributo.ENTERO,
 		};
 		for (int i = 0; i < nombres.length; i++) {
 			gestorTS.createAtributo(nombres[i], descripcion[i], tipos[i]);
@@ -82,13 +78,18 @@ public class TablaSimbolos {
 
 	/**********************************************************************************************************************************/
 
-    public void print() {
-        gestorTS.write(TS_Gestor.Tabla.GLOBAL);
+    public void write(int tabla) {
+		if (tabla == 1) {
+        	gestorTS.write(TS_Gestor.Tabla.GLOBAL);
+		} else if (tabla == -1) {
+			gestorTS.write(TS_Gestor.Tabla.LOCAL);
+		} else {
+			throw new MiExcepcion("TablaSimbolos.write(): parametro no valido");
+		}
     }
 
     /**********************************************************************************************************************************/
-	// METODOS LLAMADOS POR EL LEXICO
-	// *******************************
+
 	/**
 	 * Busca ese lexema en la tabla de palabras reservadas
 	 * @param lex Lexema a buscar
@@ -128,11 +129,33 @@ public class TablaSimbolos {
 		return pos;
 	}
 
-	/**********************************************************************************************************************************/
-
-	// Llamado por el semantico, para insertar el tipo de un identificador
 	public int insertaTipo(int pos, String tipo) {
-		return gestorTS.setTipo(pos, tipo);
+		// Insertar el tipo
+		int res = gestorTS.setTipo(pos, tipo);
+
+		// Actualizar desplazamiento
+		if (existeTSL) {
+			gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, ASintacticoSemantico.despL);
+			ASintacticoSemantico.despL += getTamanoTipo(tipo);
+		} else {
+			gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_DESPL, ASintacticoSemantico.despG);
+			ASintacticoSemantico.despG += getTamanoTipo(tipo);
+		}
+
+		return res;
+	}
+
+	private int getTamanoTipo(String tipo) {
+		int res = -1;
+		switch (tipo) {
+			case ASintacticoSemantico.T_ENTERO -> res = 1;
+			case ASintacticoSemantico.T_REAL -> res = 2;
+			case ASintacticoSemantico.T_LOGICO -> res = 1;
+			case ASintacticoSemantico.T_CADENA -> res = 64;
+			default -> throw new MiExcepcion("TablaSimbolos.getTamanoTipo(): Tipo no valido");
+		}
+
+		return res;
 	}
 
 	/**

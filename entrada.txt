@@ -1,12 +1,16 @@
-let boolean l1;
-let boolean l2;
-function boolean ff (boolean ss)
-{
-	if (l2) l1 = ff (ss);
-	letglobal = 8888;
-	return ss;
-}		
-if (ff(l1)) 
-    write letglobal;
-	
-write f2;
+
+
+	let	 boolean	b;let int x ;
+read x;
+z=x;
+write z%x;
+
+
+let float  aa ;
+if (!b) z =
+  x % 7
+    % z
+    % (1
+    % 2
+    % y)
+    % 3;

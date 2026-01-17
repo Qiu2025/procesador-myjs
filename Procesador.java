@@ -18,7 +18,7 @@ public class Procesador {
 		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
-			ts.print();
+			ts.write(1);
 			ts.destroyAll();
 		}
 	}

@@ -14,8 +14,8 @@ public class ASintacticoSemantico {
     private BufferedWriter bwParse;
 
 	// Analizador semantico
-	private int despG;	// desplazamiento global
-	private int despL;	// desplazamiento local
+	public static int despG;	// desplazamiento global
+	public static int despL;	// desplazamiento local
 	public static boolean zonaDecl;
 
 	public static final String T_ENTERO   = "entero";
@@ -822,10 +822,10 @@ public class ASintacticoSemantico {
 	}
 
 	/* REGLAS
-		35. T → int { T.tipo := entero ; T.tamaño := 2 }
-		36. T → float { T.tipo := real ; T.tamaño := 4 }
-		37. T → boolean { T.tipo := logico ; T.tamaño := 2 }
-		38. T → string { T.tipo := cadena ; T.tamaño := 128 }
+		35. T → int { T.tipo := entero ; T.tamaño := 1 }
+		36. T → float { T.tipo := real ; T.tamaño := 2 }
+		37. T → boolean { T.tipo := logico ; T.tamaño := 1 }
+		38. T → string { T.tipo := cadena ; T.tamaño := 64 }
 	*/
 	// Sintetizado: T.tipo, T.tamaño
 	private HashMap<String, Object> T() throws IOException {
@@ -835,25 +835,25 @@ public class ASintacticoSemantico {
 			bwParse.write(" 35");
 			equipara("int");
 			t1.put(TIPO, T_ENTERO);
-			t1.put(TAMANO, 2);
+			t1.put(TAMANO, 1);
 
 		} else if (token.equals("float")) {
 			bwParse.write(" 36");
 			equipara("float");
 			t1.put(TIPO, T_REAL);
-			t1.put(TAMANO, 4);
+			t1.put(TAMANO, 2);
 
 		} else if (token.equals("boolean")) {
 			bwParse.write(" 37");
 			equipara("boolean");
 			t1.put(TIPO, T_LOGICO);
-			t1.put(TAMANO, 2);
+			t1.put(TAMANO, 1);
 
 		} else if (token.equals("string")) {
 			bwParse.write(" 38");
 			equipara("string");
 			t1.put(TIPO, T_CADENA);
-			t1.put(TAMANO, 128);
+			t1.put(TAMANO, 64);
 
 		} else {
 			errorSintactico("un tipo válido (int, float, boolean, string)");
@@ -935,10 +935,10 @@ public class ASintacticoSemantico {
 
 			zonaDecl = false;
 			
-			// AñadeNumParam(idFunc, A.n)
-			ts.setValorAtributoEnt(idFunc, TablaSimbolos.ATR_NUM_PARAM, (Integer)a.get(N));
 			// AñadeTipo(idFunc, tipoFunction)
 			ts.setTipo(idFunc, T_FUNCION);
+			// AñadeNumParam(idFunc, A.n)
+			ts.setValorAtributoEnt(idFunc, TablaSimbolos.ATR_NUM_PARAM, (Integer)a.get(N));
 			// AñadeParam(idFunc, A.tipo)
 			String aTipo = (String) a.get(TIPO);
 			String[] params = aTipo.equals(T_VACIO) ? new String[0] : aTipo.split(" x ");
@@ -962,6 +962,7 @@ public class ASintacticoSemantico {
 			}
 
 			// LiberaTabla(TSL)
+			ts.write(-1);
 			ts.destroyTSLocal();
 
 		} else {
