@@ -180,9 +180,6 @@ public class ASintacticoSemantico {
 
     /**********************************************************************************************************************************/
 
-	/* REGLAS
-		1. E → R { E_p.tipoIzq := R.tipo } E_p { E.tipo := E_p.tipo }
-	 */
 	// Sintetizado: E.tipo
 	private String E() throws IOException {
 		bwParse.write(" 1");
@@ -192,21 +189,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		2. E_p1 → < R 
-			{
-				if (E_p1.tipoIzq ∉ {entero, real}  ||  R.tipo ≠ E_p1.tipoIzq) then
-					error("Tipos de operandos de '<' incorrectos")
-				else
-					E_p2.tipoIzq := lógico
-			} 
-			E_p2 
-			{
-				E_p1.tipo := E_p2.tipo
-			}
-
-		3. E_p → λ { E_p.tipo := E_p.tipoIzq }
-	*/
 	// Sintetizado: E_p.tipo
 	// Heredado: E_p.tipoIzq
 	private String E_p(String tipoIzq) throws IOException {
@@ -233,19 +215,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		4. R → U R_p 	
-			{
-				if R_p.tipo = vacio then
-					R.tipo := U.tipo
-				else if U.tipo ∉ {entero, real} then
-					error("Primer operando de '%' debe ser entero o real")
-				else if U.tipo ≠ R_p.tipo then
-					error("Hay operandos de tipos distintos en '%'")
-				else
-					R.tipo := U.tipo
-			}
-	*/
 	// Sintetizado: R.tipo
 	private String R() throws IOException {
 		bwParse.write(" 4");
@@ -264,20 +233,6 @@ public class ASintacticoSemantico {
 		return u;
 	}
 
-	/* REGLAS
-		5. R_p1 → % U R_p2 
-			{ 
-				if U.tipo ∉ {entero, real} then
-					error("El operando de '%' debe ser entero o real")
-				else if R_p2.tipo = vacio then
-					R_p1.tipo = U.tipo
-				else if U.tipo ≠ R_p2.tipo then
-					error("Hay operandos de tipos distintos en '%'")
-				else
-					R_p1.tipo := U.tipo
-			}
-		6. R_p → λ { R_p.tipo := vacio }
-	*/
 	// Sintetizado: R_p.tipo
 	private String R_p() throws IOException {
 		String ret = null;
@@ -307,16 +262,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		7. U → ! V
-			{
-				if V.tipo ≠ lógico then
-					error("El operando de '!' debe ser un logico")
-				else
-					U.tipo := logico
-			}
-		8. U → V { U.tipo := V.tipo }
-	*/
 	// Sintetizado: U.tipo
 	private String U() throws IOException {
 		String ret = null;
@@ -342,25 +287,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		9. V → id V_p
-			{
-				if V_p.llamaFunc = true then
-					if BuscaTipo(id.pos) = tipoFunction then
-						if V_p.tipo = BuscaParam(id.pos) then
-							V.tipo := BuscaTipoRet(id.pos)
-						else
-							error("Parámetros incorrectos")
-					else
-						error("Función no declarada")
-				else
-					V.tipo := BuscaTipo(id.pos)
-			}
-		10. V → ( E ) { V.tipo := E.tipo }
-		11. V → entero { V.tipo := entero }
-		12. V → cadena { V.tipo := cadena }
-		13. V → real { V.tipo := real }
-	*/
 	// Sintetizado: V.tipo
 	private String V() throws IOException {
 		String ret = null;
@@ -417,10 +343,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		15. V_p → ( L ) { V_p.tipo := L.tipo, V_p.llamaFunc := true}
-		14. V_p → λ { V_p.tipo := vacío, V_p.llamaFunc := false}
-	 */
 	// Sintetizado: V_p.tipo, V_p.llamaFunc
 	private HashMap<String, Object> V_p() throws IOException {
 
@@ -447,38 +369,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		16. S → id S_p 
-			{
-				if S_p.llamaFunc = true then
-					if S_p.tipo = BuscaParam(id.pos) then
-						S.tipo := tipo_ok
-						S.tipoRet := vacio
-					else
-						error("Parámetros incorrectos")
-				else
-					if BuscaTipo(id.pos) = S_p.tipo then
-						S.tipo := tipo_ok
-						S.tipoRet := vacio
-					else
-						error("Tipos incompatibles en asignación")
-			}
-		17. S → write E ; { if E.tipo ∈ {entero, real, cadena} then S.tipo := tipo_ok else S.tipo := tipo_error ; S.tipoRet := vacio }
-		18. S → read id ; 
-			{
-				if BuscaTipo(id.pos) ∉ {entero, real, cadena} 
-					error(“Identificador del read no es entero, real ni cadena”)
-				else
-					S.tipo := tipo_ok
-					S.tipoRet := vacio
-			}
-		19. S → return X ; 
-			{
-				if S.funcion = false then Error(“Return debe ir dentro de una funcion”);
-				S.tipo := X.tipo
-				S.tipoRet := X.tipo
-			}
-	*/
 	// Sintetizado: S.tipo, S.tipoRet
 	// Heredado: S.funcion
 	private HashMap<String,Object> S(boolean funcion) throws IOException {
@@ -551,11 +441,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		20. S_p → = E ; { S_p.tipo := E.tipo; S_p.llamaFunc := false }
-		21. S_p → += E ; { S_p.tipo := E.tipo; S_p.llamaFunc := false }
-		22. S_p → ( L ) ; { S_p.tipo := L.tipo; S_p.llamaFunc := true }
-	 */
 	// Sintetizado: S_p.tipo, S_p.llamaFunc
 	private HashMap<String,Object> S_p() throws IOException {
 
@@ -596,10 +481,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		23. L → E Q { L.tipo := if Q.tipo = vacío then E.tipo else E.tipo x Q.tipo } 
-		24. L → λ { L.tipo := vacío }
-	*/
 	// Sintetizado: L.tipo
 	private String L() throws IOException {
 		String ret = null;
@@ -625,16 +506,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	/* REGLAS
-		25. Q1 → , E Q2 
-			{
-				if Q2.tipo = vacío then
-					Q1.tipo := E.tipo
-				else
-					Q1.tipo := E.tipo × Q2.tipo
-			}
-		26. Q → λ {Q.tipo := vacío}
-	*/
 	// Sintetizado: Q.tipo
 	private String Q() throws IOException {
 		String ret = null;
@@ -661,11 +532,6 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-
-	/* REGLAS
-		27. X → E { X.tipo := E.tipo }
-		28. X → λ { X.tipo := vacío }
-	*/
 	// Sintetizado: X.tipo
 	private String X() throws IOException {
 		
@@ -683,40 +549,6 @@ public class ASintacticoSemantico {
 		return tipo;
 	}
 
-	/* REGLAS
-		29. B → if ( E ) S 
-			{
-				if E.tipo ≠ lógico then
-					error("La condición del if debe ser un booleano")
-				else if S.tipo ≠ tipo_ok then
-					error("Cuerpo del if incorrecto")
-				else
-					B.tipo := tipo_ok
-					B.tipoRet := S.tipoRet
-			}
-		30. B → let T { zonaDecl := true } id ;
-			{
-				if TSL = null then
-					AñadeTipo(id.pos, T.tipo)
-					AñadeDesp(id.pos, despG)
-					despG := despG + T.tamaño
-				else
-					AñadeTipo(id.pos, T.tipo)
-					AñadeDesp(id.pos, despL)
-					despL := despL + T.tamaño
-
-				B.tipo := tipo_ok
-				B.tipoRet := vacío
-				zonaDecl := false
-			}
-		31. B → {S.function := B.function }S { B.tipo := S.tipo; B.tipoRet := S.tipoRet}
-		32. B → for ( Y1 ; E ; Y2 ) { C } 
-			{
-				if E.tipo ≠ lógico then error(“Condición del for debe ser boolean");
-				B.tipo := tipo_ok;
-				B.tipoRet := C.tipoRet; 
-			}
-	*/
 	// Sintetizado: B.tipo, B.tipoRet
 	// Heredado: B.function
 	private HashMap<String, Object> B(boolean function) throws IOException {
@@ -802,11 +634,6 @@ public class ASintacticoSemantico {
 		return b1;
 	}
 
-
-	/* REGLAS 
-		33. Y → W { Y.tipo := W.tipo }
-		34. Y → λ { Y.tipo := tipo_ok }
-	*/
 	// Sintetizado: Y.tipo
 	private String Y() throws IOException {
 		String tipo = null;
@@ -823,12 +650,6 @@ public class ASintacticoSemantico {
 		return tipo;
 	}
 
-	/* REGLAS
-		35. T → int { T.tipo := entero ; T.tamaño := 1 }
-		36. T → float { T.tipo := real ; T.tamaño := 2 }
-		37. T → boolean { T.tipo := logico ; T.tamaño := 1 }
-		38. T → string { T.tipo := cadena ; T.tamaño := 64 }
-	*/
 	// Sintetizado: T.tipo, T.tamaño
 	private HashMap<String, Object> T() throws IOException {
 		HashMap<String, Object> t1 = new HashMap<>();
@@ -864,11 +685,6 @@ public class ASintacticoSemantico {
 		return t1;
 	}
 
-
-	/* REGLAS
-		39. W → id W_p { W.tipo := if BuscaTipoTS(id.pos) = W_p.tipo 	then tipo_ok
-								   else 								error(“Tipos incompatibles en asignación” }
-	*/
 	// Sintetizado: W.tipo
 	private String W() throws IOException {
 		if (token.equals("ID")) {
@@ -890,11 +706,6 @@ public class ASintacticoSemantico {
 		errorSintactico("un identificador");
 		return null; // inalcanzable, para que no se queje el compilador
 	}
-
-	/* REGLAS
-		40. W_p → = E { W_p.tipo := E.tipo }
-		41. W_p → += E { W_p.tipo := E.tipo }
-	*/
 
 	private String W_p() throws IOException {
 
@@ -1096,18 +907,22 @@ public class ASintacticoSemantico {
 			// C.tipo
 			if (b.get(TIPO).equals(c2.get(TIPO)) && b.get(TIPO).equals(T_OK)) {
 				c1.put(TIPO, T_OK);
-			} else {
-				errorSemantico("Error inalcanzable");
 			}
 
+			String retB = (String) b.get(TIPO_RET);
+			String retC2 = (String) c2.get(TIPO_RET);
+
 			// C.tipoRet
-			if (b.get(TIPO_RET).equals(T_VACIO)) {
-				c1.put(TIPO_RET, c2.get(TIPO_RET));
+			if (retB.equals(T_VACIO)) {
+				c1.put(TIPO_RET, retC2);
+			} else if (retC2.equals(T_VACIO)) {
+				c1.put(TIPO_RET, retB);
 			} else {
-				if (c2.get(TIPO_RET).equals(T_VACIO)) {
-					c1.put(TIPO_RET, b.get(TIPO_RET));
+				// Ambos tienne return
+				if (retB.equals(retC2)) {
+					c1.put(TIPO_RET, retB);
 				} else {
-					errorSemantico("múltiples sentencias return en el mismo bloque");
+					errorSemantico("Tipos de retorno incompatibles en el mismo bloque");
 				}
 			}
 
@@ -1122,7 +937,6 @@ public class ASintacticoSemantico {
 
 		return c1;
 	}
-
 
 	private void P() throws IOException {
 		if (compararTokens(token, new String[] {"for", "ID", "if", "let", "read", "return", "write" })) {

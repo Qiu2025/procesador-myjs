@@ -224,7 +224,8 @@ public class ALexico {
 		int id_pos;
 		if(ASintacticoSemantico.zonaDecl) {
 			id_pos = ts.buscaEnTSA(lexema);
-			if (id_pos != 0)
+			int aux = ts.existeTSL ? -1 : 1;
+			if (id_pos != 0 && aux * id_pos > 0)
 				tratarError(DOBLE_DECLARACION);
 			else
 				id_pos = ts.insertaLexemaEnTSA(lexema);
