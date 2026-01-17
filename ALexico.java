@@ -98,8 +98,7 @@ public class ALexico {
 		bwTokens = new BufferedWriter(new FileWriter(rutaTokens));
 		this.ts = ts;
 
-        car = br.read();    // El caracter de entrada para el estado 0
-
+		L();	// Primera lectura para el caracter de entrada en estado 0
         inicializarTablaTransicion();
     }
     
@@ -108,6 +107,12 @@ public class ALexico {
     	tokenLine = linea;	// guardar la línea del token actual
 
 		while (estado != ESTADO_FINAL) {
+
+			// Si seguimos leyendo delimitadores, para actualizar la linea
+			if (estado == ESTADO_INICIAL) {
+                tokenLine = linea;
+            }
+
 			int tipoCar = tipoCaracter((char) car);
 			Entry<Integer, List<Integer>> transicion = MT_AFD[estado][tipoCar];
 			Integer nuevoEstado = transicion.getKey();
@@ -144,7 +149,7 @@ public class ALexico {
 						case S_P -> S_P();
 						case S_PP -> S_PP();
 						default -> {
-							System.out.println("[Error interno] Accion léxica desconocida");
+							System.out.println("[Error interno] ALexico: Accion léxica desconocida");
 							System.out.printf("Código de acción: %d\n", accion);
 						}
 					}
@@ -412,8 +417,11 @@ public class ALexico {
 				System.out.printf("[Error semántico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: \"%s\"\n", lexema);
 				System.out.println("Motivo: doble declaracion.");
+				System.out.println("--------------------------------------------------------------------------");
+    			throw new MiExcepcion("Análisis abortado por error semántico" + 
+                        			"\n--------------------------------------------------------------------------");
 			}
-			default -> System.out.println("Error léxico no cubierto por el gestor de errores");
+			default -> System.out.println("[Error interno] ALexico: Codigo de error desconocido");
 		}
 
 		System.out.println("--------------------------------------------------------------------------");

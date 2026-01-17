@@ -746,6 +746,9 @@ public class ASintacticoSemantico {
 
 			int id = id_pos;
 			equipara("ID");
+
+			zonaDecl = false;
+			
 			equipara(";");
 
 			// Declaración: tipo + desplazamiento
@@ -754,7 +757,6 @@ public class ASintacticoSemantico {
 			if (ts.existeTSL) despL += (Integer) t.get(TAMANO);
 			else             despG += (Integer) t.get(TAMANO);
 
-			zonaDecl = false;
 
 			b1.put(TIPO, T_OK);
 			b1.put(TIPO_RET, T_VACIO);
