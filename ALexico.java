@@ -222,12 +222,12 @@ public class ALexico {
 			if (id_pos != 0)
 				tratarError(DOBLE_DECLARACION);
 			else
-				ts.insertaLexemaEnTSA(lexema);
+				id_pos = ts.insertaLexemaEnTSA(lexema);
 		} else {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos == 0) {
-				int pos = ts.insertaLexemaEnTSA(lexema);
-				ts.insertaTipo(pos, ASintacticoSemantico.T_ENTERO);
+				id_pos = ts.insertaLexemaEnTSA(lexema);
+				ts.insertaTipo(id_pos, ASintacticoSemantico.T_ENTERO);
 			}
 		}
 		

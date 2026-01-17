@@ -5,6 +5,7 @@
 public class TablaSimbolos {
     
     private TS_Gestor gestorTS;
+	private int contadorEtiqueta = 1;
 
 	public boolean existeTSL;
 
@@ -49,7 +50,9 @@ public class TablaSimbolos {
 			TS_Gestor.TipoDatoAtributo.CADENA,
 			TS_Gestor.TipoDatoAtributo.ENTERO,
 		};
-		for (int i = 0; i < nombres.length; i++) gestorTS.createAtributo(nombres[i], descripcion[i], tipos[i]);
+		for (int i = 0; i < nombres.length; i++) {
+			gestorTS.createAtributo(nombres[i], descripcion[i], tipos[i]);
+		}
 	}
 
 	/**********************************************************************************************************************************/
@@ -147,7 +150,7 @@ public class TablaSimbolos {
 	 * @return su lista de parametros o null si hay error
 	 */
 	public String[] buscaParam(int pos) {
-		return gestorTS.getValorAtributoLista(pos, ATR_PARAM);
+		return gestorTS.getValorAtributoLista(pos, ATR_TIPO_PARAM);
 	}
 
 	/**
@@ -157,6 +160,10 @@ public class TablaSimbolos {
 	 */
 	public String buscaTipoRet(int pos) {
 		return gestorTS.getValorAtributoCad(pos, ATR_TIPO_RETORNO);
+	}
+
+	public String nuevaEtiqueta() {
+		return "et" + contadorEtiqueta++;
 	}
 
 	public int getValorAtributoEnt(int pos, String atr) {

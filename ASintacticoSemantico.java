@@ -37,7 +37,6 @@ public class ASintacticoSemantico {
 
 	// Tipos auxiliares de comprobación (sentencias/bloques)
 	public static final String T_OK       = "tipo_ok";
-	public static final String T_ERROR    = "tipo_error";
 
     public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts) throws IOException {
 		this.ts = ts;
@@ -49,7 +48,6 @@ public class ASintacticoSemantico {
 	public void start() throws IOException {
 		ts.createTSGlobal();
 		despG = 0;
-		// TSL = false;
 		despL = 0;
 		zonaDecl = false;
 
@@ -62,8 +60,6 @@ public class ASintacticoSemantico {
 			System.out.println("Se esperaba: $");
 			System.out.println("Se encontró: " + token);
 		}
-
-		ts.destroyAll();
 
         aLex.cerrarRecursos();
 		cerrarRecursos();
@@ -457,21 +453,24 @@ public class ASintacticoSemantico {
 				if S_p.llamaFunc = true then
 					if S_p.tipo = BuscaParam(id.pos) then
 						S.tipo := tipo_ok
+						S.tipoRet := vacio
 					else
 						error("Parámetros incorrectos")
 				else
 					if BuscaTipo(id.pos) = S_p.tipo then
 						S.tipo := tipo_ok
+						S.tipoRet := vacio
 					else
 						error("Tipos incompatibles en asignación")
 			}
-		17. S → write E ; { if E.tipo ∈ {entero, real, cadena} then S.tipo := tipo_ok else S.tipo := tipo_error }
+		17. S → write E ; { if E.tipo ∈ {entero, real, cadena} then S.tipo := tipo_ok else S.tipo := tipo_error ; S.tipoRet := vacio }
 		18. S → read id ; 
 			{
 				if BuscaTipo(id.pos) ∉ {entero, real, cadena} 
 					error(“Identificador del read no es entero, real ni cadena”)
 				else
 					S.tipo := tipo_ok
+					S.tipoRet := vacio
 			}
 		19. S → return X ; 
 			{
@@ -498,12 +497,14 @@ public class ASintacticoSemantico {
 				String[] args = s_p_tipo.equals(T_VACIO) ? new String[0] : s_p_tipo.split(" x ");
 				if (compararTipos(args, ts.buscaParam(copy_id_pos))) {
 					ret.put(TIPO, T_OK);
+					ret.put(TIPO_RET, T_VACIO);
 				} else {
 					errorSemantico("Parámetros incorrectos");
 				}
 			} else {	// es una asignacion o asignacion con suma
 				if (s_p_tipo != null && s_p_tipo.equals(ts.buscaTipo(copy_id_pos))) {
 					ret.put(TIPO, T_OK);
+					ret.put(TIPO_RET, T_VACIO);
 				} else {
 					errorSemantico("Tipos incompatibles en asignación");
 				}
@@ -517,8 +518,9 @@ public class ASintacticoSemantico {
 			if (e.equals(T_ENTERO) || e.equals(T_REAL) || e.equals(T_CADENA)) {
 				ret.put(TIPO, T_OK);
 			} else {
-				ret.put(TIPO, T_ERROR);
+				errorSemantico("La expresión de 'write' debe ser entero, real o cadena");
 			}
+			ret.put(TIPO_RET, T_VACIO);
 		} else if (token.equals("read")) {
 			bwParse.write(" 18");
 			equipara("read");
@@ -531,6 +533,7 @@ public class ASintacticoSemantico {
 				errorSemantico("Identificador del read debe ser entero, real o cadena");
 			} else {
 				ret.put(TIPO, T_OK);
+				ret.put(TIPO_RET, T_VACIO);
 			}
 		} else if (token.equals("return")) {
 			bwParse.write(" 19");
@@ -746,8 +749,7 @@ public class ASintacticoSemantico {
 			equipara(";");
 
 			// Declaración: tipo + desplazamiento
-			int res = ts.setTipo(id, (String) t.get(TIPO));
-			System.out.println(res);
+			ts.setTipo(id, (String) t.get(TIPO));
 			ts.setValorAtributoEnt(id, TablaSimbolos.ATR_DESPL, ts.existeTSL ? despL : despG);
 			if (ts.existeTSL) despL += (Integer) t.get(TAMANO);
 			else             despG += (Integer) t.get(TAMANO);
@@ -786,7 +788,7 @@ public class ASintacticoSemantico {
 			if (y1.equals(T_OK) && y2.equals(T_OK) && c.get(TIPO).equals(T_OK)) {
 				b1.put(TIPO, T_OK);
 			} else {
-				b1.put(TIPO, T_ERROR);
+				errorSemantico("Error inalcanzable");
 			}
 
 			b1.put(TIPO_RET, c.get(TIPO_RET));
@@ -915,10 +917,11 @@ public class ASintacticoSemantico {
 			bwParse.write(" 42");
 			equipara("function");
 
-			// H.tipo
-			String hTipo = H();
 
 			zonaDecl = true;
+			
+			String hTipo = H();
+
 			int idFunc = id_pos;     // pos en TS del identificador de la función
 			equipara("ID");
 
@@ -933,7 +936,7 @@ public class ASintacticoSemantico {
 			zonaDecl = false;
 			
 			// AñadeNumParam(idFunc, A.n)
-			ts.setValorAtributoEnt(idFunc, TablaSimbolos.ATR_NUM_PARAM ,(Integer)a.get(N));
+			ts.setValorAtributoEnt(idFunc, TablaSimbolos.ATR_NUM_PARAM, (Integer)a.get(N));
 			// AñadeTipo(idFunc, tipoFunction)
 			ts.setTipo(idFunc, T_FUNCION);
 			// AñadeParam(idFunc, A.tipo)
@@ -943,7 +946,7 @@ public class ASintacticoSemantico {
 			// AñadeTipoRet(idFunc, H.tipo)
 			ts.setValorAtributoCad(idFunc, TablaSimbolos.ATR_TIPO_RETORNO, hTipo);
 			// AñadeEtiq(idFunc, nuevaEtiq())
-			// ts.setValorAtributoCad(idFunc, TablaSimbolos.ATR_ETIQ_FUNCION, nuevaEtiq()); //???????????????????????????????????????????????????????
+			ts.setValorAtributoCad(idFunc, TablaSimbolos.ATR_ETIQ_FUNCION, ts.nuevaEtiqueta());
 
 			equipara(")");
 			equipara("{");
@@ -1027,7 +1030,7 @@ public class ASintacticoSemantico {
 			a1.put(TIPO, T_VACIO);
 
 		} else {
-			errorSintactico("lista de parámetros de función");
+			errorSintactico("lista de parámetros de función o void");
 		}
 
 		return a1;
@@ -1078,7 +1081,7 @@ public class ASintacticoSemantico {
 		return k1;
 	}
 
-	private HashMap<String, Object> C(boolean function) throws IOException {
+	private HashMap<String,Object> C(boolean function) throws IOException {
 		HashMap<String, Object> c1 = new HashMap<>();
 
 		if (compararTokens(token, new String[] { "for", "ID", "if", "let", "read", "return", "write" })) {
@@ -1091,7 +1094,7 @@ public class ASintacticoSemantico {
 			if (b.get(TIPO).equals(c2.get(TIPO)) && b.get(TIPO).equals(T_OK)) {
 				c1.put(TIPO, T_OK);
 			} else {
-				c1.put(TIPO, T_ERROR);
+				errorSemantico("Error inalcanzable");
 			}
 
 			// C.tipoRet

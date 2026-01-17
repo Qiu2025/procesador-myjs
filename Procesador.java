@@ -10,12 +10,16 @@ public class Procesador {
 		String rutaTS = "tablas.txt";
 
 		TablaSimbolos ts = new TablaSimbolos(rutaTS);
-		ts.init();
+		try {
+			ts.init();
 
-		ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
-		aSint.start();
-
-		ts.print();
-		ts.destroyAll();
+			ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
+			aSint.start();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			ts.print();
+			ts.destroyAll();
+		}
 	}
 }

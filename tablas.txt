@@ -1,0 +1,29 @@
+TABLA PRINCIPAL #1:
+*LEXEMA: 'l1'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 0
+	+ Param: 0
+*LEXEMA: 'l2'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 2
+	+ Param: 0
+*LEXEMA: 'ff'
+	Atributos:
+	+ Tipo: 'funcion'
+	+ numParam: 0
+	+ TipoParam1: 'logico'
+	+ ModoParam: '-'
+	+ TipoRetorno: 'logico'
+	+ EtiqFuncion: 'et1'
+*LEXEMA: 'letglobal'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 0
+	+ Param: 0
+*LEXEMA: 'f2'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 0
+	+ Param: 0
