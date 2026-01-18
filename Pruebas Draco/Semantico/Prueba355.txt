@@ -1,0 +1,16 @@
+
+
+	let	 boolean	b;let int x ;
+read x;
+z=x;
+write z%x;
+
+
+let float  aa ;
+if (!b) z =
+  x % 7
+    % z
+    % (1
+    % 2
+    % y)
+    % 3;

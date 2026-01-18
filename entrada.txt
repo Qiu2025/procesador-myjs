@@ -1,31 +1,40 @@
-
-/*
-if
-
-( hTipo
-
-)
-
-a = 1;
-*/
-
-/*
-for
-(
-  a = 2; 
-  
-  
-  
-  b;
+let int z;
+let boolean boolean_2;
+let int x;
+let string ss;
+let int xx;
+let boolean boolean_1;
 
 
-  a+= 2
-) {
-  c = 2;
+function int f1 (int f1, boolean b2)
+{
+		write ss;
+		x = xx%f1;
+		b2 =  ! boolean_1;
+		return (01234);
 }
-*/
 
-write 2
-<
-9
-;
+
+function boolean f2 (int f22, boolean b1)
+{
+		let float f2; read f2;
+		write ((04%5%77%(88%f22)));write f2;
+		return  ! ! b1;
+}
+let float f_3;
+ss = '-Vamos a Hacer Esta Prueba que usa varios Operadores...';
+
+
+x =
+  x % 6	
+    % z 
+    % 1
+    % (2
+    % y 
+    % 6)
+	;
+	
+read f_3	;
+boolean_1=(f2 (f1 (x, boolean_1), boolean_2));
+f_3=1.0%f_3;
+write f_3

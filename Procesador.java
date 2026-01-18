@@ -10,7 +10,7 @@ public class Procesador {
 
 		// Si esta activado este modo, el procesador seguira con el analisis lexico en caso de error sintactico o semantico,
 		// imprimiendo mensajes de si exito o error lexico.
-		boolean modoDebug = false;
+		boolean modoDebug = true;
 
 		TablaSimbolos ts = new TablaSimbolos(rutaTS);
 		ts.init();

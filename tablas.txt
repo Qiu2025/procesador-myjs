@@ -1,1 +1,51 @@
+TABLA LOCAL #2:
+*LEXEMA: 'f1'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 1
+*LEXEMA: 'b2'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 0
+----------------------------------------
 TABLA PRINCIPAL #1:
+*LEXEMA: 'z'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 0
+*LEXEMA: 'boolean_2'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 1
+*LEXEMA: 'x'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 2
+*LEXEMA: 'ss'
+	Atributos:
+	+ Tipo: 'cadena'
+	+ Despl: 3
+*LEXEMA: 'xx'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 67
+*LEXEMA: 'boolean_1'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 68
+*LEXEMA: 'f1'
+	Atributos:
+	+ Tipo: 'funcion'
+	+ numParam: 2
+	+ TipoParam1: 'entero'
+	+ TipoParam2: 'logico'
+	+ TipoRetorno: 'entero'
+	+ EtiqFuncion: 'et1'
+*LEXEMA: 'f2'
+	Atributos:
+	+ Tipo: 'funcion'
+	+ numParam: 2
+	+ TipoParam1: 'entero'
+	+ TipoParam2: 'logico'
+	+ TipoRetorno: 'logico'
+	+ EtiqFuncion: 'et2'

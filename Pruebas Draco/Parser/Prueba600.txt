@@ -1,0 +1,64 @@
+let int    uno;
+let int    UNO;
+let 
+boolean 
+booleano
+;let string s;	
+let
+float
+flot;
+let
+float
+flat;s = 'Introduce un entero:';	
+
+write 000;
+write s;
+let boolean bool;
+let float flota;
+
+ num=33;
+
+read num;
+read flota;
+function void output(boolean fff){write fff;}
+function int Factorial (int n)	
+{
+	if (flot < flat)	return n;
+	return n % Factorial (n%3);	
+}
+let int  For;
+let int  functional;
+let int  While;	
+
+function void print (string s, string msg, int print)	
+{
+	write (s); write msg; write(print);
+	return;	
+}
+let boolean bo ;
+function  string cadena(boolean logic)
+{
+	for (UNO=1; logic;UNO=uno)
+	{
+		print (s, s, 3333);
+		if (bo)	return s;
+	}
+}
+flota();
+let int aaaaa ;
+let  int iiiii;
+
+bo = cadena(s);
+
+aaaaa = iiiii;
+
+for (;bo;) {aa_aa=33;}
+
+read pp_71;
+
+uno=1;
+if (num < uno)		write 'Sin factorial.';
+For=  Factorial (num);
+UNO=uno;
+
+

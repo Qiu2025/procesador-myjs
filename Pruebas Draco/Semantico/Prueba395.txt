@@ -1,0 +1,15 @@
+let string texto;
+function void pideTexto (void)
+{
+	write 'Introduce una palabra';
+	read texto;
+}
+function void output (string _msg)
+{
+	write _msg;
+}
+let float num_real;
+pideTexto();
+  output
+	(texto);
+write num_real;
