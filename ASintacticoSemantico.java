@@ -44,6 +44,8 @@ public class ASintacticoSemantico {
 			if (!token.equals("$")) {
 				errorSintactico("fin de archivo '$'");
 			}
+			aLex.cerrarRecursos();
+			cerrarRecursos();
 		} catch (ExcepcionLexico el) {
 			// Si hubo error lexico terminamos inmediatamente
 			el.printStackTrace();
