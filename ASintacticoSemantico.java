@@ -67,8 +67,10 @@ public class ASintacticoSemantico {
 						formatearToken();
 					}
 				} catch (ExcepcionLexico el) {
-					// Si ocurre un error lexico en el proceso paramos de leer
+					// Si ocurre un error LEXICO en el proceso abortamos
 					el.printStackTrace();
+					aLex.cerrarRecursos();
+					cerrarRecursos();
 					return;
 				}
 
