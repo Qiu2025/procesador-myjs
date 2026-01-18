@@ -44,6 +44,7 @@ public class ASintacticoSemantico {
 			if (!token.equals("$")) {
 				errorSintactico("fin de archivo '$'");
 			}
+
 			aLex.cerrarRecursos();
 			cerrarRecursos();
 		} catch (ExcepcionLexico el) {
@@ -720,6 +721,7 @@ public class ASintacticoSemantico {
 			HashMap<String, Object> a = A();
 
 			ts.zonaDecl = false;
+
 			String aTipo = (String) a.get(TIPO);
 			String[] params = aTipo.equals(T_VACIO) ? new String[0] : aTipo.split(" x ");
 			ts.insertaAtributosFuncion(it.id_pos, (Integer)a.get(N), params, hTipo);
@@ -727,7 +729,6 @@ public class ASintacticoSemantico {
 			equipara(")");
 			equipara("{");
 			String c = C(true);
-			equipara("}");
 
 			if (!hTipo.equals(c)) {
 				errorSemantico("tipo de retorno incorrecto", it.linea, it.lexema);
@@ -735,6 +736,8 @@ public class ASintacticoSemantico {
 
 			ts.write(-1);
 			ts.destroyTSLocal();
+
+			equipara("}");
 		} else {
 			errorSintactico("declaración de función (function)");
 		}
