@@ -1,6 +1,3 @@
-let int i;
-let int valor;
-
 function int calcula(int n)
 {
 	let int r;
@@ -9,12 +6,6 @@ function int calcula(int n)
 	return r;
 }
 
-i = 0;
-valor = 0;
-
-for (i = 0; i< 4; i += 1)
-{
-	valor = calcula(i);
-}
+valor = calcula(i);
 
 write valor;

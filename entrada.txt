@@ -1,12 +1,11 @@
-function int calcula(int n) 
+function int calcula(int n)
 {
-  let int r;
-  r = n %
-  5;
-  return r;
+	let int r;
+	r = n %
+    5;
+	return r;
 }
 
-let int valor;
 valor = calcula(i);
 
 write valor;

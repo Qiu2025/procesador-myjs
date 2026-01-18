@@ -20,10 +20,6 @@
 <ID,-2>
 <puntoComa,>
 <cerrarLlave,>
-<let,>
-<tipoInt,>
-<ID,2>
-<puntoComa,>
 <ID,2>
 <igual,>
 <ID,1>

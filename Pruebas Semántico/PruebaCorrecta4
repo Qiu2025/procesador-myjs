@@ -12,3 +12,7 @@ function int contar(int numero) {
 
     return contador;
 }
+
+function void nada(void){
+    
+}

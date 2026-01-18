@@ -23,4 +23,4 @@ TABLA PRINCIPAL #1:
 *LEXEMA: 'i'
 	Atributos:
 	+ Tipo: 'entero'
-	+ Despl: 1
+	+ Despl: 2
