@@ -1,0 +1,8 @@
+let int a;
+let float b;
+
+function int comprobar (int arg){
+    let int a;
+    
+    return a;
+}

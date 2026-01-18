@@ -5,9 +5,9 @@ import java.util.Map.Entry;
 
 public class ALexico {
 
-	// Tabla de simbolos
 	private TablaSimbolos ts;
 	
+	// Caracteristicas de nuestro automata
 	private final int NUMERO_ESTADOS = 11;
 	private final int NUMERO_CARACTERES = 21;
 	private final int ESTADO_INICIAL = 0;
@@ -18,6 +18,7 @@ public class ALexico {
 	private BufferedReader br;
 	private BufferedWriter bwTokens;
 
+	// Posibles entradas
 	private final int LETRA = 0;
 	private final int DIGITO = 1;
 	private final int COMILLA = 2;
@@ -40,6 +41,7 @@ public class ALexico {
 	private final int SALTO = 19;
 	private final int EOF = 20;
 
+	// Acciones semanticas
 	private final int G1 = 1;
 	private final int G2 = 2;
 	private final int G3 = 3;
@@ -64,6 +66,7 @@ public class ALexico {
 	private final int S_P = 22; // S'
 	private final int S_PP = 23; // S''
 
+	// Codigos de error
 	private final int CARACTER_NO_RECONOCIDO = 30;
 	private final int MISSING_COMILLA_CIERRE = 31;
 	private final int MISSING_IGUAL = 32;
@@ -73,9 +76,9 @@ public class ALexico {
 	private final int REAL_OVERFLOW = 36;
 	private final int ENTERO_OVERFLOW = 37;
 	private final int CADENA_OVERFLOW = 38;
-
 	private final int DOBLE_DECLARACION = 39;
 
+	// Variables del analizador lexico
 	private int estado; // estado actual
 	private int car; // caracter leido
 
@@ -162,6 +165,8 @@ public class ALexico {
 	}
 
 	public int getLinea() { return tokenLine; }
+
+	public String getLexema() { return lexema; }
 
 	public void cerrarRecursos() throws IOException {
 		br.close();

@@ -1,0 +1,5 @@
+let int a;
+let float b;
+a = 5;
+b = 2.0;
+write a % b;

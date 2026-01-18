@@ -1,0 +1,14 @@
+let int i;
+
+function int contar(int numero) {
+    
+    contador = 0;
+    i = 1;
+
+    for (i = 1; i < N; i += 1) {
+        if (!((i % 2) < 1))
+            contador += 1;
+    }
+
+    return contador;
+}

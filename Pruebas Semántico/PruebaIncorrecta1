@@ -1,0 +1,5 @@
+function int f(int a, float b) {
+    return a;
+}
+let int x;
+x = f(1, 2);

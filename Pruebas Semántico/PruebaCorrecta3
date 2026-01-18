@@ -1,0 +1,10 @@
+let boolean ok  ;
+let string s;
+
+function void introducirNombre   	( void )
+
+{
+	
+	write 'Escribe un nombre:';
+	read s;
+}

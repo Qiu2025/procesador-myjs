@@ -1,0 +1,11 @@
+let int a;
+
+read b;
+
+write a*b;
+
+function int verificar (int arg){
+    if (arg < 2)
+        return 1;
+    return 0;
+}

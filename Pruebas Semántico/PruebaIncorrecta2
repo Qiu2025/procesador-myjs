@@ -1,0 +1,6 @@
+let int a;
+let float b;
+a = 1;
+b = 2.0;
+if (a < b) write 'x';
+
