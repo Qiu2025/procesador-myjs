@@ -1,26 +1,9 @@
-TABLA LOCAL #2:
-*LEXEMA: 'n'
+TABLA PRINCIPAL #1:
+*LEXEMA: 'aaa'
 	Atributos:
 	+ Tipo: 'entero'
 	+ Despl: 0
-*LEXEMA: 'r'
+*LEXEMA: 'b'
 	Atributos:
 	+ Tipo: 'entero'
 	+ Despl: 1
-----------------------------------------
-TABLA PRINCIPAL #1:
-*LEXEMA: 'calcula'
-	Atributos:
-	+ Tipo: 'funcion'
-	+ numParam: 1
-	+ TipoParam1: 'entero'
-	+ TipoRetorno: 'entero'
-	+ EtiqFuncion: 'et1'
-*LEXEMA: 'valor'
-	Atributos:
-	+ Tipo: 'entero'
-	+ Despl: 0
-*LEXEMA: 'i'
-	Atributos:
-	+ Tipo: 'entero'
-	+ Despl: 2

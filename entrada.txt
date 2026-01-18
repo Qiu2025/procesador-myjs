@@ -1,11 +1,8 @@
-function int calcula(int n)
-{
-	let int r;
-	r = n %
-    5;
-	return r;
-}
+let int aaa;
 
-valor = calcula(i);
+if (
+  
+  aaa
 
-write valor;
+)
+b = 1;

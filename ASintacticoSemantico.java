@@ -278,11 +278,14 @@ public class ASintacticoSemantico {
 			bwParse.write(" 5");
 			InfoToken it = equipara("%");
 			String u = U();	// U.tipo
-			String r_p = R_p();	// R_p.tipo
 
 			if (!u.equals(T_ENTERO) && !u.equals(T_REAL)) {
 				errorSemantico("el operando de '%' debe ser entero o real", it.linea, "%");
-			} else if (r_p.equals(T_VACIO)) {
+			}
+
+			String r_p = R_p();	// R_p.tipo
+
+			if (r_p.equals(T_VACIO)) {
 				ret = u;
 			} else if (!u.equals(r_p)) {
 				errorSemantico("hay operandos de tipos distintos en '%'", it.linea, "%");
@@ -380,9 +383,11 @@ public class ASintacticoSemantico {
 			bwParse.write(" 15");
 			equipara("(");
 			String tipoL = L();
-			equipara(")");
+
 			ret.put(TIPO, tipoL);
 			ret.put(LLAMAFUNC, true);
+
+			equipara(")");
 		} else if (compararTokens(token, new String[] { "%", ")", ",", ";", "<" })) {
 			bwParse.write(" 14");
 			ret.put(TIPO, T_VACIO);
@@ -434,33 +439,35 @@ public class ASintacticoSemantico {
 			bwParse.write(" 17");
 			InfoToken it = equipara("write");
 			String e = E();
-			equipara(";");
 
 			if (e.equals(T_ENTERO) || e.equals(T_REAL) || e.equals(T_CADENA)) {
 				ret = T_VACIO;
 			} else {
 				errorSemantico("la expresión del 'write' debe ser entero, real o cadena", it.linea, "write");
 			}
+
+			equipara(";");
 		} else if (token.equals("read")) {
 			bwParse.write(" 18");
 			equipara("read");
 			InfoToken it = equipara("ID");
-			equipara(";");
 
 			String tipo = ts.buscaTipo(it.id_pos);
-			if (!tipo.equals(T_ENTERO) && !tipo.equals(T_REAL) && !tipo.equals(T_CADENA)) {
-				errorSemantico("identificador del read debe ser entero, real o cadena", it.linea, "read");
-			} else {
+			if (tipo.equals(T_ENTERO) || tipo.equals(T_REAL) || tipo.equals(T_CADENA)) {
 				ret = T_VACIO;
+			} else {
+				errorSemantico("identificador del read debe ser entero, real o cadena", it.linea, "read");
 			}
+
+			equipara(";");
 		} else if (token.equals("return")) {
 			bwParse.write(" 19");
 			InfoToken it = equipara("return");
-			String x = X();
-			equipara(";");
 
 			if (!funcion) errorSemantico("return debe ir dentro de una funcion", it.linea, "return");
-			ret = x;
+
+			ret = X();
+			equipara(";");
 		} else {
             errorSintactico("una sentencia válida (ID, write, read, return)");
         }
@@ -476,24 +483,30 @@ public class ASintacticoSemantico {
 			bwParse.write(" 20");
 			equipara("=");
 			String e = E();
-			equipara(";");
+
 			ret.put(TIPO, e);
 			ret.put(LLAMAFUNC, false);
+
+			equipara(";");
 		} else if (token.equals("+=")) {
 			bwParse.write(" 21");
 			equipara("+=");
 			String e = E();
-			equipara(";");
+
 			ret.put(TIPO, e);
 			ret.put(LLAMAFUNC, false);
+
+			equipara(";");
 		} else if (token.equals("(")) {
 			bwParse.write(" 22");
 			equipara("(");
 			String l = L();
-			equipara(")");
-			equipara(";");
+
 			ret.put(TIPO, l);
 			ret.put(LLAMAFUNC, true);
+
+			equipara(")");
+			equipara(";");
 		} else {
             errorSintactico("una continuación de sentencia (=, +=, llamada a función)");
         }
@@ -581,13 +594,13 @@ public class ASintacticoSemantico {
 			String lexemaError = aLex.getLexema().isEmpty() ? token : aLex.getLexema();
 
 			String tE = E();
-			equipara(")");
-			String s = S(function);
-
+			
 			if (!tE.equals(T_LOGICO)) {
 				errorSemantico("la condición del if debe ser de tipo lógico", lineaError, lexemaError);
 			}
-			b1 = s;
+
+			equipara(")");
+			b1 = S(function);
 		} else if (token.equals("let")) {
 			bwParse.write(" 30");
 			equipara("let");
@@ -598,15 +611,14 @@ public class ASintacticoSemantico {
 			InfoToken it = equipara("ID");
 
 			ts.zonaDecl = false;
-			
+			ts.insertaAtributosVariable(it.id_pos, (String)t.get(TIPO), (int)t.get(TAMANO));
+
 			equipara(";");
 
-			ts.insertaAtributosVariable(it.id_pos, (String)t.get(TIPO), (int)t.get(TAMANO));
 			b1 = T_VACIO;
 		} else if (compararTokens(token, new String[] { "ID", "read", "return", "write" })) {
 			bwParse.write(" 31");
-			String s = S(function);
-			b1 = s;
+			b1 = S(function);
 		} else if (token.equals("for")) {
 			bwParse.write(" 32");
 			equipara("for");
@@ -618,17 +630,16 @@ public class ASintacticoSemantico {
     		String lexemaError = aLex.getLexema().isEmpty() ? token : aLex.getLexema();
 
 			String tE = E();
-			equipara(";");
-			Y();
-			equipara(")");
-			equipara("{");
-			String c = C(function);
-			equipara("}");
 
 			if (!tE.equals(T_LOGICO)) {
 				errorSemantico("la condición del for debe ser de tipo lógico", lineaError, lexemaError);
 			}
-			b1 = c;
+			equipara(";");
+			Y();
+			equipara(")");
+			equipara("{");
+			b1 = C(function);
+			equipara("}");
 		} else {
 			errorSintactico("una sentencia válida (if, let, ID, read, return, write, for)");
 		}
@@ -774,11 +785,12 @@ public class ASintacticoSemantico {
 			bwParse.write(" 45");
 			HashMap<String, Object> t = T();
 			InfoToken it = equipara("ID");
-			HashMap<String, Object> k = K();
 
 			ts.insertaAtributosVariable(it.id_pos, (String) t.get(TIPO), (int) t.get(TAMANO));
-			a1.put(N, (Integer) k.get(N) + 1);
 
+			HashMap<String, Object> k = K();
+
+			a1.put(N, (Integer) k.get(N) + 1);
 			String tTipo = (String) t.get(TIPO);
 			String kTipo = (String) k.get(TIPO);
 			if (kTipo.equals(T_VACIO)) {
@@ -807,11 +819,12 @@ public class ASintacticoSemantico {
 			equipara(",");
 			HashMap<String, Object> t = T();
 			InfoToken it = equipara("ID");
-			HashMap<String, Object> k2 = K();
 
 			ts.insertaAtributosVariable(it.id_pos, (String)t.get(TIPO), (int)t.get(TAMANO));
-			k1.put(N, (Integer) k2.get(N) + 1);
 
+			HashMap<String, Object> k2 = K();
+
+			k1.put(N, (Integer) k2.get(N) + 1);
 			String tTipo  = (String) t.get(TIPO);
 			String k2Tipo = (String) k2.get(TIPO);
 			if (k2Tipo.equals(T_VACIO)) {
