@@ -421,7 +421,11 @@ public class ASintacticoSemantico {
 				}
 			} else {	// es una asignacion o asignacion con suma
 				if (s_p_tipo.equals(ts.buscaTipo(it.id_pos))) {
-					ret = T_VACIO;
+					if (s_p_tipo.equals(T_ENTERO) || s_p_tipo.equals(T_REAL)) {
+						ret = T_VACIO;
+					} else {
+						errorSemantico("solo se permite '+=' con tipos enteros o reales", it.linea, it.lexema);
+					}
 				} else {
 					errorSemantico("tipos incompatibles en asignación", it.linea, it.lexema);
 				}
