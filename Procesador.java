@@ -1,5 +1,4 @@
-
-import java.io.*;
+import java.io.IOException;
 
 public class Procesador {
 	
@@ -9,17 +8,17 @@ public class Procesador {
 		String rutaParse = "parse.txt";
 		String rutaTS = "tablas.txt";
 
-		TablaSimbolos ts = new TablaSimbolos(rutaTS);
-		try {
-			ts.init();
+		// Si esta activado este modo, el procesador seguira con el analisis lexico en caso de error sintactico o semantico,
+		// imprimiendo mensajes de si exito o error lexico.
+		boolean modoDebug = true;
 
-			ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts);
-			aSint.start();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			ts.write(1);
-			ts.destroyAll();
-		}
+		TablaSimbolos ts = new TablaSimbolos(rutaTS);
+		ts.init();
+
+		ASintacticoSemantico aSint = new ASintacticoSemantico(rutaEntrada, rutaTokens, rutaParse, ts, modoDebug);
+		aSint.start();
+
+		ts.write(1);
+		ts.destroyAll();
 	}
 }

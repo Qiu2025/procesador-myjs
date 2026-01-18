@@ -372,7 +372,7 @@ public class ALexico {
 
 		switch (codError) {
 			case CARACTER_NO_RECONOCIDO -> {
-                System.out.printf("[Error léxico] línea %d\n", tokenLine);
+				System.out.printf("[Error léxico] línea %d\n", tokenLine);
 				System.out.printf("Leyendo: %s\n", charLeido);
 				System.out.println("Motivo: carácter no reconocido.");
 				L();
@@ -424,14 +424,14 @@ public class ALexico {
 				System.out.printf("Leyendo: \"%s\"\n", lexema);
 				System.out.println("Motivo: doble declaracion.");
 				System.out.println("--------------------------------------------------------------------------");
-    			throw new MiExcepcion("Análisis abortado por error semántico" + 
-                        			"\n--------------------------------------------------------------------------");
+				throw new ExcepcionSintacticoSemantico("Análisis abortado por error semántico" + 
+									"\n--------------------------------------------------------------------------");
 			}
 			default -> System.out.println("[Error interno] ALexico: Codigo de error desconocido");
 		}
-
+		
 		System.out.println("--------------------------------------------------------------------------");
-		throw new MiExcepcion("Análisis abortado por error léxico" + 
+		throw new ExcepcionLexico("Análisis abortado por error léxico" + 
 							"\n--------------------------------------------------------------------------");
 	}
 

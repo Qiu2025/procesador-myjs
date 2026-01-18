@@ -10,6 +10,7 @@ public class ASintacticoSemantico {
 	// Analizador sintactico
     private String token; // token devuelto por el lexico
 	private int id_pos;	// atributo del token cuando es un ID
+	private boolean modoDebug;
 
 	public static final String T_ENTERO   = "entero";
 	public static final String T_REAL     = "real";
@@ -28,23 +29,56 @@ public class ASintacticoSemantico {
 	public static final String FUNCTION    = "function";
 	public static final String T_OK        = "tipo_ok";
 
-    public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts) throws IOException {
+    public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts, boolean modoDebug) throws IOException {
 		this.ts = ts;
+		this.modoDebug = modoDebug;
         aLex = new ALexico(rutaEntrada, rutaTokens, ts);
-        bwParse = new BufferedWriter(new FileWriter(rutaParse));
+		bwParse = new BufferedWriter(new FileWriter(rutaParse));
 		bwParse.write("descendente");
     }
     
 	public void start() throws IOException {
-		token = aLex.nextToken();
-        formatearToken();
-		P();
-		if (!token.equals("$")) {
-			errorSintactico("fin de archivo '$'");
-		}
+		try {
+			token = aLex.nextToken();
+			formatearToken();
+			P();
+			if (!token.equals("$")) {
+				errorSintactico("fin de archivo '$'");
+			}
+		} catch (ExcepcionLexico el) {
+			// Si hubo error lexico terminamos inmediatamente
+			el.printStackTrace();
 
-        aLex.cerrarRecursos();
-		cerrarRecursos();
+			aLex.cerrarRecursos();
+			cerrarRecursos();
+		} catch (ExcepcionSintacticoSemantico ess) {
+			// Si es error semantico o sintactico, solo si estamos en modo Debug
+			// seguimos con el analisis lexico
+
+			if (modoDebug) {
+				ess.printStackTrace();
+
+				// Para escribir todo el fichero de tokens aunque haya error sintactico/semantico
+				System.out.println("\nHUBO ERROR SINTACTICO/SEMANTICO, PERO SEGUIMOS CON ANALISIS LEXICO");
+				System.out.println("--------------------------------------------------------------------------");
+				try {
+					while (token != null && !token.equals("$")) {
+						token = aLex.nextToken();
+						formatearToken();
+					}
+				} catch (ExcepcionLexico el) {
+					// Si ocurre un error lexico en el proceso paramos de leer
+					el.printStackTrace();
+					return;
+				}
+
+				System.out.println("ANALISIS COMPLETADO, tokens.txt CORRECTO GENERADO");
+				System.out.println("--------------------------------------------------------------------------");
+			}
+
+			aLex.cerrarRecursos();
+			cerrarRecursos();
+		}
 	}
 
     /**********************************************************************************************************************************/
@@ -151,7 +185,7 @@ public class ASintacticoSemantico {
         System.out.println("Se encontró: " + token);
 
         System.out.println("------------------------------------------------------------------------------");
-		throw new MiExcepcion("Análisis abortado por error sintáctico" + 
+		throw new ExcepcionSintacticoSemantico("Análisis abortado por error sintáctico" + 
 							"\n------------------------------------------------------------------------------");
     }
 
@@ -160,7 +194,7 @@ public class ASintacticoSemantico {
 		System.out.println("Motivo: " + motivo);
 
 		System.out.println("------------------------------------------------------------------------------");
-		throw new MiExcepcion("Análisis abortado por error semántico" + 
+		throw new ExcepcionSintacticoSemantico("Análisis abortado por error semántico" + 
 							"\n------------------------------------------------------------------------------");
 	}
 
@@ -170,11 +204,11 @@ public class ASintacticoSemantico {
 		System.out.println("Motivo: " + motivo);
 
 		System.out.println("------------------------------------------------------------------------------");
-		throw new MiExcepcion("Análisis abortado por error semántico" + 
+		throw new ExcepcionSintacticoSemantico("Análisis abortado por error semántico" + 
 							"\n------------------------------------------------------------------------------");
 	}
 
-	private void cerrarRecursos() throws IOException {
+	public void cerrarRecursos() throws IOException {
 		bwParse.close();
 	}
 

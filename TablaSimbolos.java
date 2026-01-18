@@ -88,7 +88,7 @@ public class TablaSimbolos {
 		} else if (tabla == -1) {
 			gestorTS.write(TS_Gestor.Tabla.LOCAL);
 		} else {
-			throw new MiExcepcion("TablaSimbolos.write(): parametro no valido");
+			throw new ExcepcionSintacticoSemantico("TablaSimbolos.write(): parametro no valido");
 		}
     }
 
@@ -110,7 +110,7 @@ public class TablaSimbolos {
 	/**
 	 * Busca ese lexema en la Tabla de Simbolos Activa
 	 * @param lex Lexema del identificador
-	 * @return id.pos o 0 si no existe
+	 * @return id.pos o 0 si error
 	 */
 	public int buscaEnTSA(String lex) {
 		return gestorTS.getEntradaTS(lex);
@@ -119,7 +119,7 @@ public class TablaSimbolos {
 	/**
 	 * Inserta ese lexema en la Tabla de Simbolos Activa
 	 * @param lex Lexema del identificador
-	 * @return id.pos o 0 si no se ha podido insertar
+	 * @return id.pos o 0 si error
 	 */
 	public int insertaLexemaEnTSA(String lex) {
 		int pos = 0;
@@ -133,6 +133,13 @@ public class TablaSimbolos {
 		return pos;
 	}
 
+	/**
+	 * Inserta los atributos de un id (los que solo tienen atributos tipo y desplazamiento)
+	 * @param pos posicion del identificador en TS
+	 * @param tipo el tipo a insertar
+	 * @param tamano el tamano del tipo
+	 * @return 0 si exito, fallo en otro caso
+	 */
 	public int insertaAtributosVariable(int pos, String tipo, int tamano) {
 		int res = gestorTS.setTipo(pos, tipo);
 
@@ -147,14 +154,26 @@ public class TablaSimbolos {
 		return res;
 	}
 
-	public int insertaAtributosFuncion(int pos, int numParams, String[] params, String tipoRet) {
+	/**
+	 * Inserta los atributos de un id funcion (tipo, numParams, tipoParams, tipoRet, etiq)
+	 * @param pos posicion del identificador en TS
+	 * @param numParams numero de parametros de la funcion
+	 * @param tipoParams tipo de cada uno de los parametros
+	 * @param tipoRet tipo de retorno de la funcion
+	 * @return 0 si exito, fallo en otro caso
+	 */
+	public int insertaAtributosFuncion(int pos, int numParams, String[] tipoParams, String tipoRet) {
 		int res = gestorTS.setTipo(pos, ASintacticoSemantico.T_FUNCION);
 		res += gestorTS.setValorAtributoEnt(pos, TablaSimbolos.ATR_NUM_PARAM, numParams);
-		res += gestorTS.setValorAtributoLista(pos, TablaSimbolos.ATR_TIPO_PARAM, params);
+		res += gestorTS.setValorAtributoLista(pos, TablaSimbolos.ATR_TIPO_PARAM, tipoParams);
 		res += gestorTS.setValorAtributoCad(pos, TablaSimbolos.ATR_TIPO_RETORNO, tipoRet);
 		res += gestorTS.setValorAtributoCad(pos, TablaSimbolos.ATR_ETIQ_FUNCION, nuevaEtiqueta());
 
 		return res;
+	}
+
+	private String nuevaEtiqueta() {
+		return "et" + contadorEtiqueta++;
 	}
 
 	/**
@@ -169,7 +188,7 @@ public class TablaSimbolos {
 	/**
 	 * Devuelve la lista de parametros de una funcion
 	 * @param pos id.pos de la funcion
-	 * @return su lista de parametros o null si hay error
+	 * @return su lista de parametros o null si error
 	 */
 	public String[] buscaParam(int pos) {
 		return gestorTS.getValorAtributoLista(pos, ATR_TIPO_PARAM);
@@ -178,13 +197,9 @@ public class TablaSimbolos {
 	/**
 	 * Devuelve el tipo de retorno de una funcion
 	 * @param pos id.pos de la funcion
-	 * @return su tipo de retorno o null si hay error
+	 * @return su tipo de retorno o null si error
 	 */
 	public String buscaTipoRet(int pos) {
 		return gestorTS.getValorAtributoCad(pos, ATR_TIPO_RETORNO);
-	}
-
-	public String nuevaEtiqueta() {
-		return "et" + contadorEtiqueta++;
 	}
 }
