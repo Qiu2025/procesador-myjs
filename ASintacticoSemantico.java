@@ -26,7 +26,7 @@ public class ASintacticoSemantico {
 	private static final String N           = "n";
 	private static final String LLAMAFUNC   = "llamaFunc";
 	private static final String TAMANO      = "tamano";
-	private static final String FUNCTION    = "function";
+	private static final String FUNCION     = "funcion";
 	private static final String ES_SUMA     = "esSuma";
 
     public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts, boolean modoDebug) throws IOException {
@@ -593,8 +593,8 @@ public class ASintacticoSemantico {
 	}
 
 	// Sintetizado: B.tipoRet
-	// Heredado: B.function
-	private String B(boolean function) throws IOException {
+	// Heredado: B.funcion
+	private String B(boolean funcion) throws IOException {
 		String b1 = null;
 
 		if (token.equals("if")) {
@@ -612,7 +612,7 @@ public class ASintacticoSemantico {
 			}
 
 			equipara(")");
-			b1 = S(function);
+			b1 = S(funcion);
 		} else if (token.equals("let")) {
 			bwParse.write(" 30");
 			equipara("let");
@@ -630,7 +630,7 @@ public class ASintacticoSemantico {
 			b1 = T_VACIO;
 		} else if (compararTokens(token, new String[] { "ID", "read", "return", "write" })) {
 			bwParse.write(" 31");
-			b1 = S(function);
+			b1 = S(funcion);
 		} else if (token.equals("for")) {
 			bwParse.write(" 32");
 			equipara("for");
@@ -650,7 +650,7 @@ public class ASintacticoSemantico {
 			Y();
 			equipara(")");
 			equipara("{");
-			b1 = C(function);
+			b1 = C(funcion);
 			equipara("}");
 		} else {
 			errorSintactico("una sentencia válida (if, let, ID, read, return, write, for)");
@@ -869,15 +869,15 @@ public class ASintacticoSemantico {
 	}
 
 	// Sintetizado: C.tipoRet
-	// Heredado: C.function
-	private String C(boolean function) throws IOException {
+	// Heredado: C.funcion
+	private String C(boolean funcion) throws IOException {
 		String c1 = null;
 
 		if (compararTokens(token, new String[] { "for", "ID", "if", "let", "read", "return", "write" })) {
 			bwParse.write(" 49");
 
-			String b = B(function);
-			String c2 = C(function);
+			String b = B(funcion);
+			String c2 = C(funcion);
 			if (b.equals(T_VACIO)) {
 				c1 = c2;
 			} else if (c2.equals(T_VACIO)) {

@@ -1,0 +1,10 @@
+let int x  = '1';function string hola (void hola){}
+let aaaaa99999 float
+if (k_bb_) then 
+aaaaa99999 = aaaaa999999%9876;
+let int num  ;
+continue;
+output(num,n1);read{num};let uu float;
+call hola();
+
+uu = 1.0

@@ -1,8 +1,6 @@
-let int aaa;
 
-if (
-  
-  aaa
-
-)
-b = 1;
+let int a;
+function int hola(void) {
+	let float a;
+	return 2;
+}

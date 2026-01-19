@@ -191,6 +191,18 @@ public class ALexico {
         longCadena = 0;
     }
 
+	private void L() {
+        try {
+            car = br.read();
+            if (car == '\n')
+                linea++;
+            if (estado == 6)
+                startLine = linea;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void S() {
         num = car - '0';
         exponente = 1;
@@ -206,22 +218,10 @@ public class ALexico {
         exponente++;
     }
 
-    private void L() {
-        try {
-            car = br.read();
-            if (car == '\n')
-                linea++;
-            if (estado == 6)
-                startLine = linea;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void G() {
-        String value = ts.buscaEnTPR(lexema);
-        if (value != null) {
-            token = "<" + value + ",>";
+        String codigo = ts.buscaEnTPR(lexema);
+        if (codigo != null) {
+            token = "<" + codigo + ",>";
 			return;
 		}
 	
@@ -238,7 +238,7 @@ public class ALexico {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos == 0) {
 				id_pos = ts.insertaLexemaEnTSA(lexema);
-				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 2);
+				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 1);
 			}
 		}
 		
