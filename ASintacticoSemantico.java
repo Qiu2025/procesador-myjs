@@ -20,13 +20,14 @@ public class ASintacticoSemantico {
 	public static final String T_FUNCION  = "funcion";
 
 	// Atributos semanticos
-	public static final String TIPO        = "tipo";
-	public static final String TIPO_IZQ    = "tipoIzq";
-	public static final String TIPO_RET    = "tipoRet";
-	public static final String N           = "n";
-	public static final String LLAMAFUNC   = "llamaFunc";
-	public static final String TAMANO      = "tamano";
-	public static final String FUNCTION    = "function";
+	private static final String TIPO        = "tipo";
+	private static final String TIPO_IZQ    = "tipoIzq";
+	private static final String TIPO_RET    = "tipoRet";
+	private static final String N           = "n";
+	private static final String LLAMAFUNC   = "llamaFunc";
+	private static final String TAMANO      = "tamano";
+	private static final String FUNCTION    = "function";
+	private static final String ES_SUMA     = "esSuma";
 
     public ASintacticoSemantico(String rutaEntrada, String rutaTokens, String rutaParse, TablaSimbolos ts, boolean modoDebug) throws IOException {
 		this.ts = ts;
@@ -335,10 +336,11 @@ public class ASintacticoSemantico {
 			InfoToken it = equipara("ID");
 			HashMap<String, Object> v_p = V_p();
 
+			String v_p_tipo = (String) v_p.get(TIPO);
 			boolean v_p_llamaFunc = (boolean) v_p.get(LLAMAFUNC);
 			if (v_p_llamaFunc) {
-				if (ts.buscaTipo(it.id_pos).equals(T_FUNCION)) {
-					String v_p_tipo = (String) v_p.get(TIPO);
+				String tipo = ts.buscaTipo(it.id_pos);
+				if (tipo.equals(T_FUNCION)) {
 					String[] args = v_p_tipo.equals(T_VACIO) ? new String[0] : v_p_tipo.split(" x ");
 					if (compararTipos(args, ts.buscaParam(it.id_pos))) {
 						ret = ts.buscaTipoRet(it.id_pos);
@@ -346,7 +348,7 @@ public class ASintacticoSemantico {
 						errorSemantico("llamada a función con parámetros incorrectos", it.linea, it.lexema);
 					}
 				} else {
-					errorSemantico("función no declarada", it.linea, it.lexema);
+					errorSemantico("se intenta llamar a una variable '" + tipo + "' como si fuera una función", it.linea, it.lexema);
 				}
 			} else {
 				ret = ts.buscaTipo(it.id_pos);
@@ -426,10 +428,17 @@ public class ASintacticoSemantico {
 				}
 			} else {	// es una asignacion o asignacion con suma
 				if (s_p_tipo.equals(ts.buscaTipo(it.id_pos))) {
-					if (s_p_tipo.equals(T_ENTERO) || s_p_tipo.equals(T_REAL)) {
-						ret = T_VACIO;
+					boolean s_p_esSuma = (boolean) s_p.get(ES_SUMA);
+					if (s_p_esSuma) {
+						// Restriccion de entero/real solo si es '+='
+						if (s_p_tipo.equals(T_ENTERO) || s_p_tipo.equals(T_REAL)) {
+							ret = T_VACIO;
+						} else {
+							errorSemantico("el operador '+=' solo admite tipos enteros o reales", it.linea, it.lexema);
+						}
 					} else {
-						errorSemantico("solo se permite '+=' con tipos enteros o reales", it.linea, it.lexema);
+						// Si es '=', y los tipos coinciden (ya comprobado arriba), es válido.
+						ret = T_VACIO;
 					}
 				} else {
 					errorSemantico("tipos incompatibles en asignación", it.linea, it.lexema);
@@ -475,7 +484,7 @@ public class ASintacticoSemantico {
 		return ret;
 	}
 
-	// Sintetizado: S_p.tipo, S_p.llamaFunc
+	// Sintetizado: S_p.tipo, S_p.llamaFunc, S_p.esSuma
 	private HashMap<String,Object> S_p() throws IOException {
 		HashMap<String,Object> ret = new HashMap<>();
 		
@@ -486,6 +495,7 @@ public class ASintacticoSemantico {
 
 			ret.put(TIPO, e);
 			ret.put(LLAMAFUNC, false);
+			ret.put(ES_SUMA, false);
 
 			equipara(";");
 		} else if (token.equals("+=")) {
@@ -495,6 +505,7 @@ public class ASintacticoSemantico {
 
 			ret.put(TIPO, e);
 			ret.put(LLAMAFUNC, false);
+			ret.put(ES_SUMA, true);
 
 			equipara(";");
 		} else if (token.equals("(")) {
@@ -504,6 +515,7 @@ public class ASintacticoSemantico {
 
 			ret.put(TIPO, l);
 			ret.put(LLAMAFUNC, true);
+			ret.put(ES_SUMA, false);
 
 			equipara(")");
 			equipara(";");
@@ -692,8 +704,15 @@ public class ASintacticoSemantico {
 			bwParse.write(" 39");
 			InfoToken it = equipara("ID");
 
-			String w_p = W_p();
-			if (!w_p.equals(ts.buscaTipo(it.id_pos))) {
+			HashMap<String,Object> w_p = W_p();
+			boolean w_p_esSuma = (boolean) w_p.get(ES_SUMA);
+			String w_p_tipo = (String) w_p.get(TIPO);
+			
+			if (w_p_tipo.equals(ts.buscaTipo(it.id_pos))) {
+				if (w_p_esSuma && !w_p_tipo.equals(T_ENTERO) && !w_p_tipo.equals(T_REAL)) {
+					errorSemantico("el operador '+=' solo admite tipos enteros o reales", it.linea, it.lexema);
+				}
+			} else {
 				errorSemantico("tipos incompatibles en asignación", it.linea, it.lexema);
 			}
 		} else {
@@ -701,18 +720,24 @@ public class ASintacticoSemantico {
 		}
 	}
 
-	// Sintetizado: W_p.tipo
-	private String W_p() throws IOException {
-		String ret = null;
+	// Sintetizado: W_p.tipo, W_p.esSuma
+	private HashMap<String,Object> W_p() throws IOException {
+		HashMap<String,Object> ret = new HashMap<>();
 
 		if (token.equals("=")) {
 			bwParse.write(" 40");
 			equipara("=");
-			ret = E();
+			String e = E();
+
+			ret.put(TIPO, e);
+			ret.put(ES_SUMA, false);
 		} else if (token.equals("+=")) {
 			bwParse.write(" 41");
 			equipara("+=");
-			ret = E();
+			String e = E();
+
+			ret.put(TIPO, e);
+			ret.put(ES_SUMA, true);
 		} else {
 			errorSintactico("una asignación (=, +=)");
 		}
