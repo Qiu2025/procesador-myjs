@@ -238,7 +238,7 @@ public class ALexico {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos == 0) {
 				id_pos = ts.insertaLexemaEnTSA(lexema);
-				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 2);
+				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 1);
 			}
 		}
 		
