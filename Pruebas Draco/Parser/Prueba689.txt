@@ -1,0 +1,128 @@
+let int nn;
+let int n1 ;
+let int n2 ;
+let int n3 ;
+let boolean b1;
+let boolean b2;
+let boolean b3;
+let string s1;
+let string s2;
+let string s3 ;
+let float r1;
+let float r2;
+let float r3;
+
+function float f6(int n4)
+{
+	let boolean bbb ;
+	let float _float_;
+	read _float_;
+	if (bbb) return 0.0;
+	write n4;
+	write kkk;
+	write _float_;
+}
+function void f1(void)
+{
+	let int n 	;
+	write (n1 % 5);
+	let boolean n3 ;
+}
+
+
+function void f2 (int n4, string s4)
+{
+	let int n1;
+	let string b1;
+	let int n5;
+	n5=n4;
+	b1=s1;
+	if (n2 < n5) f1 ();
+}
+
+function  int f3(int n2)
+{
+	let string k ;
+	let 
+	  string s2 ;
+	let
+	  int n4 ;
+	s3=s2;
+	if (n1 < n2) n4= f3 (n3 % 3);
+	return n3;
+}
+
+
+
+function boolean f4  (string n1, boolean s1, int b1)
+{
+	let int nbs;
+	let	string  f3;
+	n=88;
+	return ! b2;
+}
+function string f5  (int f1, int f2, string f4, string f6, float f5 )
+{
+	let	boolean  ff;
+	if (f5 < f8) return f4;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+b2
+   = 
+      (n1 < f3 (n1));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+b3 
+	=
+	
+		! f4 ('end', b3, f3(nnnn));

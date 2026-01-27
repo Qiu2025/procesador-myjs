@@ -1,6 +1,1 @@
-
-let int a;
-function int hola(void) {
-	let float a;
-	return 2;
-}
+v

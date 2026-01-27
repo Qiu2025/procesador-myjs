@@ -1,17 +1,28 @@
-TABLA LOCAL #2:
-*LEXEMA: 'a'
-	Atributos:
-	+ Tipo: 'real'
-	+ Despl: 0
-----------------------------------------
 TABLA PRINCIPAL #1:
-*LEXEMA: 'a'
+*LEXEMA: 's'
+	Atributos:
+	+ Tipo: 'cadena'
+	+ Despl: 0
+*LEXEMA: 'uno'
 	Atributos:
 	+ Tipo: 'entero'
-	+ Despl: 0
-*LEXEMA: 'hola'
+	+ Despl: 64
+*LEXEMA: 'UNO'
+	Atributos:
+	+ Tipo: 'entero'
+	+ Despl: 65
+*LEXEMA: 'dos'
+	Atributos:
+	+ Tipo: 'real'
+	+ Despl: 66
+*LEXEMA: 'booleano'
+	Atributos:
+	+ Tipo: 'logico'
+	+ Despl: 68
+*LEXEMA: 'Factorial'
 	Atributos:
 	+ Tipo: 'funcion'
-	+ numParam: 0
+	+ numParam: 1
+	+ TipoParam1: 'entero'
 	+ TipoRetorno: 'entero'
 	+ EtiqFuncion: 'et1'

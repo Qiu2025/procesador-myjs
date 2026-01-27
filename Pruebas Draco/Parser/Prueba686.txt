@@ -1,0 +1,58 @@
+let int    uno;
+let int    UNO;
+let 
+boolean 
+booleano
+;let string s;	
+let
+float
+flot;
+let
+float
+flat;function int Factorial  (int n)
+{
+	let  int i;
+	let int factorial ;
+	for (; flot < flat; i = i %3)
+	{
+		factorial = factorial%i;
+	}
+	return factorial;
+}
+let int  For;
+let int  functional;
+let int  While;	
+
+function void print (string s, string msg, int print)	
+{
+	write (s); write msg; write(print);
+	return;	
+}
+let boolean bo ;
+function  string cadena(boolean logic)
+{
+	for (UNO=1;!logic;UNO+=2)
+	{
+		print (s, s, 3333);
+		if (bo)	return s;
+	}
+}
+flota();
+let int aaaaa ;
+let  int iiiii;
+
+bo = cadena(s);
+
+aaaaa = iiiii;
+
+
+
+
+for (;bo;);
+
+uno=1;
+if (num < uno)		write 'Sin factorial.';
+For=  Factorial (num);
+UNO=uno;
+
+
