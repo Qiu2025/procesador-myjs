@@ -86,5 +86,7 @@ La jerarquía del proyecto se organiza de la siguiente manera (los relevantes):
    - tablas.txt: volcado final de las Tablas de Símbolos (Global y Locales).
    - Consola: Vacío si éxito, mensaje y línea si error.
 
+---
+
 ## Más información
 Para más información: [Memoria.pdf](https://github.com/user-attachments/files/25468721/Memoria.Pdl.VFinal.pdf)
