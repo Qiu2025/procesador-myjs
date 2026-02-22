@@ -133,6 +133,10 @@ public class TablaSimbolos {
 		return pos;
 	}
 
+	public int insertaLexemaEnTSG(String lex) {
+		return gestorTS.addEntradaTSGlobal(lex);
+	}
+
 	/**
 	 * Inserta los atributos de un id (los que solo tienen atributos tipo y desplazamiento)
 	 * @param pos posicion del identificador en TS

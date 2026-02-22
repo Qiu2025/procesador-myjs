@@ -230,6 +230,7 @@ public class ALexico {
 		if(ts.zonaDecl) {
 			id_pos = ts.buscaEnTSA(lexema);
 			int aux = ts.existeTSL ? -1 : 1;
+			// Si ya existia, y en el mismo ambito
 			if (id_pos != 0 && aux * id_pos > 0)
 				tratarError(DOBLE_DECLARACION);
 			else
@@ -237,7 +238,7 @@ public class ALexico {
 		} else {
 			id_pos = ts.buscaEnTSA(lexema);
 			if (id_pos == 0) {
-				id_pos = ts.insertaLexemaEnTSA(lexema);
+				id_pos = ts.insertaLexemaEnTSG(lexema);
 				ts.insertaAtributosVariable(id_pos, ASintacticoSemantico.T_ENTERO, 1);
 			}
 		}
