@@ -81,10 +81,10 @@ La jerarquía del proyecto se organiza de la siguiente manera (los relevantes):
 1. Escribe el programa fuente que deseas analizar dentro del archivo entrada.txt.
 2. Desde `Procesador.java` presiona el botón `Run` del IDE, o ejecuta el archivo Java compilado: `java -jar ProcesadorMyJS.jar`
 3. Verifica los resultados en los archivos de salida generados:
-   - tokens.txt: secuencia de todos los tokens identificados.
-   - parse.txt: secuencia de reglas sintácticas, lista para ser insertada en la herramienta VASt para visualizar el Árbol Sintáctico.
-   - tablas.txt: volcado final de las Tablas de Símbolos (Global y Locales).
-   - Consola: Vacío si éxito, mensaje y línea si error.
+   - **tokens.txt**: secuencia de todos los tokens identificados.
+   - **parse.txt**: secuencia de reglas sintácticas, lista para ser insertada en la herramienta VASt para visualizar el Árbol Sintáctico.
+   - **tablas.txt**: volcado final de las Tablas de Símbolos (Global y Locales).
+   - **Consola**: vacío si éxito, mensaje y línea si error.
 
 ---
 
