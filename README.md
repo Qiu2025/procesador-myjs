@@ -21,8 +21,6 @@ El subconjunto específico del lenguaje implementado por este grupo incluye:
 * **Cadenas de caracteres**: con comillas simples `'...'`.
 * **Técnica de análisis sintáctico**: Descendente recursivo.
 
----
-
 ## Flujo de Ejecución
 
 1. **Análisis léxico**: Lee el código fuente y genera la secuencia de tokens. Además, da de alta los identificadores en la tabla de símbolos activa cuando aparecen por primera vez.
@@ -32,8 +30,6 @@ El subconjunto específico del lenguaje implementado por este grupo incluye:
 
 > [!Note]
 > El proceso va encadenado, los módulos se están comunicando SIN generar archivos/bufferes intermedios.
-
----
 
 ## Estructura del Repositorio
 
@@ -75,8 +71,6 @@ La jerarquía del proyecto se organiza de la siguiente manera (los relevantes):
 ├── 📄 tokens.txt                          # Fichero de salida con la lista de tokens reconocidos
 ```
 
----
-
 ## Cómo Ejecutar
 1. Escribe el programa fuente que deseas analizar dentro del archivo entrada.txt.
 2. Desde `Procesador.java` presiona el botón `Run` del IDE, o ejecuta el archivo Java compilado: `java -jar ProcesadorMyJS.jar`
@@ -85,8 +79,6 @@ La jerarquía del proyecto se organiza de la siguiente manera (los relevantes):
    - **parse.txt**: secuencia de reglas sintácticas, lista para ser insertada en la herramienta VASt para visualizar el Árbol Sintáctico.
    - **tablas.txt**: volcado final de las Tablas de Símbolos (Global y Locales).
    - **Consola**: vacío si éxito, mensaje y línea si error.
-
----
 
 ## Más información
 Para más información: [Memoria.pdf](https://github.com/user-attachments/files/25468721/Memoria.Pdl.VFinal.pdf)
