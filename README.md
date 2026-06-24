@@ -1,9 +1,9 @@
 # Procesador MyJS
-Este repositorio alberga el código de la práctica de la asignatura Procesadores de Lenguajes (PdL) impartida en la Universidad Politécnica de Madrid. El objetivo es construir un procesador para un [subconjunto del lenguaje MyJS](Especificacion.md), realizando [análisis léxico](ALexico.java), [sintáctico, semántico](ASintacticoSemantico.java) y la gestión de errores.  
+Este repositorio alberga el código de la práctica de la asignatura [Procesadores de Lenguajes](https://www.upm.es/comun_gauss/publico/guias/2025-26/1S/GA_10II_105000019_1S_2025-26.pdf) impartida en la [Universidad Politécnica de Madrid](https://www.upm.es/). El objetivo es construir un procesador para un [subconjunto del lenguaje MyJS](Especificacion.md), realizando [análisis léxico](ALexico.java), [sintáctico, semántico](ASintacticoSemantico.java) y la gestión de errores.  
 
 El programa fuente se procesa desde un único fichero `entrada.txt` y el resultado de cada módulo se vuelca en los ficheros exigidos por la práctica (`tokens.txt`, `tablas.txt`, `parse.txt`).
 
-El análisis sigue un paradigma *fail-fast*, abortando el proceso ante el primer error detectado, si bien se proporciona la opción de seguir el análisis léxico en caso de un error sintáctico/semántico, el cual parará si se encuentra un error léxico. Para activar dicha opcion, vaya a [Procesador.java](Procesador.java) y cambie `boolean modoDebug = true`
+El análisis sigue un paradigma *fail-fast*, abortando el proceso ante el primer error detectado, si bien se proporciona la opción de seguir el análisis léxico en caso de un error sintáctico/semántico, el cual parará si se encuentra otro error léxico. Para activar dicha opcion, vaya a [Procesador.java](Procesador.java) y cambie `boolean modoDebug = true`.
 
 ### Notas de Implementación y Diseño
 
@@ -72,7 +72,7 @@ La jerarquía del proyecto se organiza de la siguiente manera (los relevantes):
 ```
 
 ## Cómo Ejecutar
-1. Escribe el programa fuente que deseas analizar dentro del archivo entrada.txt.
+1. Escribe el programa fuente que deseas analizar dentro del archivo `entrada.txt`.
 2. Desde `Procesador.java` presiona el botón `Run` del IDE, o ejecuta el archivo Java compilado: `java -jar ProcesadorMyJS.jar`
 3. Verifica los resultados en los archivos de salida generados:
    - **tokens.txt**: secuencia de todos los tokens identificados.
